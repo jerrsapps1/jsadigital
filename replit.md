@@ -41,41 +41,106 @@ Production-grade JSA (Job Safety Analysis) SaaS application that digitizes safet
 - OSHA orange primary color (#f97316)
 - Professional print CSS for JSA documents
 
-## Project Structure
+## Project Structure (Monorepo)
+
+The project is organized as a monorepo with shared types/templates and two app implementations:
 
 ```
 /
-├── client/src/
+├── shared/                          # Single source of truth
+│   ├── types.ts                     # JsaAlamoDoc, JsaTemplateRow, Role types
+│   ├── seeds/
+│   │   ├── templates.ts            # 13 construction templates
+│   │   └── ppe.ts                  # Universal PPE standards
 │   ├── components/
-│   │   ├── AppSidebar.tsx          # Navigation sidebar
-│   │   ├── DashboardPage.tsx       # Main dashboard
-│   │   ├── JsaBuilder.tsx          # JSA creation wizard
-│   │   ├── JsaViewPage.tsx         # JSA view/print/PDF page
-│   │   ├── PrintableJSA_Alamo.tsx  # Printable JSA component
-│   │   ├── TemplatesPage.tsx       # Construction templates library
-│   │   ├── ArchivePage.tsx         # JSA archive/history
-│   │   ├── AnalyticsPage.tsx       # Safety analytics dashboard
-│   │   ├── SignaturePad.tsx        # Digital signature component
-│   │   ├── KpiCard.tsx             # KPI metric cards
-│   │   ├── TrendChart.tsx          # Chart components
-│   │   └── ui/                     # shadcn components
-│   ├── pages/
-│   │   └── not-found.tsx
-│   ├── App.tsx                     # Main app with routing
-│   └── index.css                   # Global styles + print CSS
-├── server/
-│   ├── api/
-│   │   └── jsaAlamoPdf.ts          # PDF generation API
-│   ├── templates/
-│   │   └── alamo-print.css         # Print stylesheet
-│   ├── routes.ts                   # API routes
-│   └── storage.ts                  # In-memory storage
-├── shared/
-│   ├── jsaAlamoTypes.ts            # JSA document types
-│   ├── ppeStandards.ts             # Universal PPE standards
-│   ├── templates.construction.ts  # Construction templates
-│   └── jsa.sample.concrete.ts     # Sample concrete JSA
-└── package.json
+│   │   └── PrintableJSA_Alamo.tsx  # Shared printable component
+│   ├── jsa.sample.concrete.ts      # Sample concrete JSA
+│   └── jsa.sample.confinedspace.ts # Sample confined space JSA
+│
+├── app/                             # Full production SaaS (default)
+│   ├── client/src/
+│   │   ├── components/
+│   │   │   ├── AppSidebar.tsx      # Navigation sidebar
+│   │   │   ├── DashboardPage.tsx   # Main dashboard
+│   │   │   ├── JsaBuilder.tsx      # JSA creation wizard
+│   │   │   ├── JsaViewPage.tsx     # JSA view/print/PDF page
+│   │   │   ├── TemplatesPage.tsx   # Templates library
+│   │   │   ├── ArchivePage.tsx     # JSA archive
+│   │   │   ├── AnalyticsPage.tsx   # Analytics dashboard
+│   │   │   ├── special/            # Special field cards
+│   │   │   ├── voice/              # Voice command system
+│   │   │   └── ui/                 # shadcn components
+│   │   ├── App.tsx                 # Main app with routing
+│   │   └── index.css               # Global + print CSS
+│   ├── server/
+│   │   ├── api/                    # API endpoints
+│   │   ├── routes.ts               # Express routes
+│   │   └── storage.ts              # In-memory storage
+│   ├── vite.config.ts              # Vite with @shared alias
+│   ├── tailwind.config.ts          # Tailwind config
+│   └── postcss.config.js           # PostCSS config
+│
+├── spa-lean/                        # Lightweight 2-step client-only app
+│   ├── src/
+│   │   ├── pages/
+│   │   │   ├── TemplatesPage.tsx   # Template selection
+│   │   │   └── BuilderPage.tsx     # JSA form builder
+│   │   ├── App.tsx                 # Routing
+│   │   └── main.tsx                # Entry point
+│   ├── vite.config.ts              # Vite with @shared alias
+│   └── package.json                # Separate dependencies
+│
+├── package.json → app/package.json  # Symlink for workflow
+├── client/ → app/client/            # Symlink for workflow
+└── server/ → app/server/            # Symlink for workflow
+```
+
+**Key Architecture:**
+- `/shared` - Types, templates, components used by both apps
+- `/app` - Full-featured SaaS with backend, AI, voice commands
+- `/spa-lean` - Client-only app with JSON import/export
+- Root symlinks maintain Replit workflow compatibility
+
+### How Apps Import from Shared
+
+Both apps use a TypeScript path alias to import from `/shared`:
+
+```typescript
+// In app/ or spa-lean/
+import { TEMPLATES } from '@shared/seeds/templates';
+import { JsaAlamoDoc } from '@shared/types';
+import PrintableJSA_Alamo from '@shared/components/PrintableJSA_Alamo';
+```
+
+Changes to `/shared` automatically apply to both apps. JSAs can be exported from `/app` and imported into `/spa-lean` (and vice versa) since they share the same type system.
+
+### When to Use Which App
+
+**Use `/app` (full build) when:**
+- You need backend API, persistence, or AI features
+- You want voice commands or analytics dashboard
+- You need special fields (confined space, hot work, LOTO, etc.)
+- Building a production SaaS
+
+**Use `/spa-lean` when:**
+- You just need to fill out JSAs quickly
+- You want offline capability (no server needed)
+- You need static hosting (GitHub Pages, Netlify, etc.)
+- Learning the JSA workflow with simpler codebase
+- Sharing JSAs as JSON files
+
+### Running the Apps
+
+**Default (full app):**
+```bash
+npm run dev  # Runs from /app via symlinks
+```
+
+**Lightweight app:**
+```bash
+cd spa-lean
+npm install
+npm run dev
 ```
 
 ## Construction Templates (Pre-seeded)
@@ -365,7 +430,7 @@ The application uses a dark OSHA safety theme:
 6. ✅ Created sample JSA with confined space monitoring data
 7. ✅ Total templates: 13 (up from 8)
 
-**Phase 3 - Voice Commands (Today):**
+**Phase 3 - Voice Commands:**
 1. ✅ Added voice command system using Web Speech API
 2. ✅ Created VoiceButton component with mic and text input modes
 3. ✅ Implemented intent parser for natural language commands
@@ -373,77 +438,13 @@ The application uses a dark OSHA safety theme:
 5. ✅ Support for project, task, steps, hazards, and special field toggles
 6. ✅ Navigation merge: "JSA Templates" replaces separate JSA/Templates tabs
 
-## Monorepo Structure (NEW!)
-
-The project has been reorganized into a monorepo with three main directories:
-
-### `/shared` - Single Source of Truth
-
-All types, templates, and shared components live here:
-
-```
-shared/
-├── types.ts                     # JsaAlamoDoc, JsaTemplateRow, Role types
-├── seeds/
-│   ├── templates.ts            # 13 construction templates (TEMPLATES array)
-│   └── ppe.ts                  # Universal PPE standards
-├── components/
-│   └── PrintableJSA_Alamo.tsx  # React component for printable layout
-├── jsa.sample.concrete.ts       # Sample JSA (concrete pour)
-├── jsa.sample.confinedspace.ts  # Sample JSA (confined space)
-└── schema.ts                    # Database schema (if using DB)
-```
-
-### `/app` - Full Build (Production-Grade SaaS)
-
-The complete application with all features:
-
-- **Backend**: Express API, in-memory storage, PDF generation (Puppeteer)
-- **Frontend**: React, TanStack Query, Wouter routing, Shadcn UI
-- **Features**: Voice commands, AI suggestions, special fields, analytics dashboard
-- **Config**: Vite, TypeScript, Tailwind, configured to import from `../shared`
-
-Run: `cd app && npm run dev` (uses existing workflow)
-
-### `/spa-lean` - Lightweight 2-Step UI
-
-Simplified React + Vite app for quick JSA creation:
-
-- **No backend** - Pure client-side React app
-- **No database** - Export/Import JSON files
-- **2-step workflow** - Templates → Builder → Print
-- **Shared data** - Uses templates and types from `/shared`
-- **Print to PDF** - Browser's native print dialog
-
-Run: `cd spa-lean && npm install && npm run dev`
-
-### How They Work Together
-
-Both apps import from `/shared`:
-
-```typescript
-// In app/ or spa-lean/
-import { TEMPLATES } from '@shared/seeds/templates';
-import { JsaAlamoDoc } from '@shared/types';
-import PrintableJSA_Alamo from '@shared/components/PrintableJSA_Alamo';
-```
-
-Changes to `/shared` automatically apply to both apps. You can export a JSA from `/app` and import it into `/spa-lean` (and vice versa) since they share the same type system.
-
-### When to Use Which App
-
-**Use `/app` (full build) when:**
-- You need backend API, persistence, or AI features
-- You want voice commands or analytics
-- You need special fields (confined space, hot work, LOTO, etc.)
-- Building a production SaaS
-
-**Use `/spa-lean` when:**
-- You just need to fill out JSAs quickly
-- You want offline capability (no server needed)
-- You need static hosting (GitHub Pages, Netlify, etc.)
-- Learning the JSA workflow with simpler codebase
-- Sharing JSAs as JSON files
+**Phase 4 - Monorepo Reorganization (2025-11-05):**
+1. ✅ Created `/shared` directory with types, templates, PPE, and PrintableJSA component
+2. ✅ Moved full app to `/app` and updated all imports to use `@shared` alias
+3. ✅ Built `/spa-lean` lightweight client-only app with JSON import/export
+4. ✅ Fixed Tailwind CSS and PostCSS configuration for monorepo structure
+5. ✅ Created symlinks at root for workflow compatibility
+6. ✅ Updated documentation to reflect monorepo architecture
 
 ## Notes
 
