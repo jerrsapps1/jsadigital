@@ -1,0 +1,99 @@
+🎨 Your OSHA Training Management System - Complete Theme Details
+Design Philosophy
+Your site features a GitHub-inspired dark theme with glassmorphic elements and blue glow effects, creating a sophisticated, modern, and trustworthy appearance perfect for professional training management.
+
+🌈 Customizable Brand Colors (Editable in Settings)
+Primary Color - OSHA Orange
+Default: #f97316 (Safety Orange)
+Used for: Main action buttons (Create Class, Save), OSHA badges, key highlights, primary CTAs
+Purpose: Draws attention to important actions and OSHA-specific elements
+Secondary Color - AI Blue
+Default: #2f81f7 (Bright Blue)
+Used for: AI features (course recommendations, syllabus generation), links, secondary buttons
+Purpose: Distinguishes AI-powered features from standard functionality
+Accent Color
+Default: #10b981 (Emerald Green)
+Used for: Active navigation items, highlights, focus indicators, selected states
+Purpose: Shows what's currently active or selected
+Success Color
+Default: #22c55e (Green)
+Used for: Completed tasks, issued certificates, success confirmations, positive feedback
+Purpose: Celebrates achievements and successful operations
+Warning Color
+Default: #f59e0b (Amber)
+Used for: Caution alerts, pending items, important notices, class capacity warnings
+Purpose: Draws attention to items needing review
+Error Color
+Default: #ef4444 (Red)
+Used for: Error messages, validation failures, delete confirmations, critical alerts
+Purpose: Warns about problems or destructive actions
+🎭 Core UI Colors (GitHub-Inspired Dark Theme)
+Background Colors
+Main Background: #0d1117 (Deep charcoal)
+Canvas/Surface: #161b22 (Slightly lighter charcoal)
+Card Background: #161b22 with glassmorphic backdrop blur
+Text Colors
+Primary Text: #c9d1d9 (Light gray - high readability)
+Muted Text: #8b949e (Medium gray - secondary information)
+Links: #2f81f7 (Blue, matches secondary color)
+Border Colors
+Default Borders: #30363d (Subtle gray for separation)
+Card Borders: Semi-transparent white with blue glow effect
+✨ Special Visual Effects
+Glassmorphic Cards
+Backdrop Filter: Frosted glass blur effect
+Blue Glow Shadow: rgba(88, 166, 255, 0.15) - Creates ethereal depth
+Border: Semi-transparent with subtle glow
+Background: Semi-transparent dark with blur
+Radial Gradient Background
+Creates atmospheric depth across the entire application
+Subtle gradient from center to edges
+Enhances the modern, sophisticated feel
+Interactive States
+Hover Effects: Subtle elevation with brightness increase
+Active States: Enhanced elevation for pressed feeling
+Focus Indicators: Uses accent color for accessibility
+📝 Typography System
+Font Families
+Sans-Serif (Body text): Inter / -apple-system / BlinkMacSystemFont
+
+Clean, modern, highly readable
+Used for all standard UI text
+Monospace (OSHA codes): JetBrains Mono
+
+Technical, precise appearance
+Used for OSHA standard codes (e.g., OSHA 30, OSHA 10)
+Serif (Optional): Georgia
+
+Traditional, formal feel
+Available for headings if needed
+Text Hierarchy
+3 levels of text color for information hierarchy:
+Primary: Full brightness for main content
+Secondary: Muted for supporting details
+Tertiary: Most subtle for least important info
+🎯 Layout & Spacing
+Border Radius
+Standard: 0.5rem (8px) for most elements
+Philosophy: Small, subtle rounding for modern feel
+Spacing Scale
+Base unit: 0.25rem (4px)
+Consistent spacing throughout for visual harmony
+Component Design
+Cards: Elevated glassmorphic panels with blue glow
+Buttons: Gradient backgrounds with hover elevation
+Inputs: Dark backgrounds with subtle borders
+Tables: Compact layouts for data-heavy views
+🔐 Authentication UI Style
+Amazon-inspired header for familiarity and trust
+Sign-in dropdown for non-authenticated users
+User avatar menu with profile options for authenticated users
+Notification bell with unread badge system
+🎨 Design Principles
+Contrast: High contrast text on dark backgrounds for readability
+Consistency: Repeated patterns throughout the interface
+Depth: Glassmorphic effects and shadows create visual layers
+Focus: OSHA orange draws eyes to key actions
+Trust: GitHub-inspired dark theme feels professional and modern
+Accessibility: Clear focus states and color contrast ratios
+Your theme creates a sophisticated, trustworthy, and modern training management platform that balances professional credibility with cutting-edge design! 🚀
