@@ -121,10 +121,18 @@ All JSAs include these standard PPE requirements:
 - `POST /api/jsas/:id/pdf` - Generate PDF from JSA document
   - Body: JsaAlamoDoc JSON
   - Returns: application/pdf
+  - Special fields automatically render as permit pages
 
 - `GET /api/jsas/:id/suggest?template={templateName}` - AI suggestion endpoint
   - Query: template name (e.g., "Confined Space Entry")
   - Returns: JSON with hazards, controls, PPE, UI toggles, and special field defaults
+  - Templates with auto-toggles:
+    - "Confined Space" → confinedSpace + atmosphericMonitoring
+    - "Hot Work" → hotWorkPermit (fireWatchMins: 60, cleared35ft: "Yes")
+    - "Electrical" / "LOTO" → loto (pointsVerified: "No", zeroVerified: "No")
+    - "Crane" / "Rigging" → craneLiftPlan (qualified: "Yes", powerClearance: "Yes")
+    - "Traffic" → trafficControlPlan (flaggers: "As Needed", lightingPlan: "N/A")
+    - "Steel" → hotWorkPermit
   - Example response:
     ```json
     {
@@ -142,11 +150,33 @@ All JSAs include these standard PPE requirements:
       "special": {
         "confinedSpace": {
           "requiresPermit": true,
-          "atmosphericMonitoring": { ... }
+          "atmosphericMonitoring": { 
+            "required": true,
+            "gases": ["O2", "LEL", "H2S", "CO"],
+            "acceptableRanges": { "O2": "19.5%–23.5%", ... },
+            "continuous": true,
+            "ventilationCFM": 500
+          }
         }
       }
     }
     ```
+
+## Validation
+
+Special fields are validated via `server/api/validateSpecialFields.ts`:
+
+**Hot Work**: Fire watch minutes required, must be positive number  
+**LOTO**: Zero energy must be verified before work proceeds  
+**Crane/Lift**: Rigger/signaler must be qualified  
+**Traffic Control**: Flagger assignment must be specified  
+**Confined Space**: Rescue plan verified, atmospheric readings within acceptable ranges (O2: 19.5%-23.5%, LEL <10%)
+
+Usage in routes:
+```typescript
+import { validateSpecialFieldsMiddleware } from './api/validateSpecialFields';
+app.post('/api/jsas', validateSpecialFieldsMiddleware, handler);
+```
 
 ## PDF Generation
 
@@ -184,21 +214,37 @@ The application supports task-specific permit and control systems that auto-popu
 - Continuous monitoring requirements
 - Ventilation CFM requirements
 - Isolation verification
+- **UI Component**: `client/src/components/special/ConfinedSpaceCard.tsx` (future implementation)
 
 ### Hot Work
 - Permit requirement tracking
 - Fire watch duration (default: 60 minutes)
+- Combustibles cleared verification (35 ft radius)
+- **UI Component**: `client/src/components/special/HotWorkCard.tsx`
 
 ### LOTO (Lockout/Tagout)
 - Energy isolation requirements
+- Isolation points verification
+- Zero energy verification
+- **UI Component**: `client/src/components/special/LotoCard.tsx`
 
 ### Crane/Lift
 - Lift plan requirements
+- Rigger/signaler qualification verification
+- Power line clearance verification
+- **UI Component**: `client/src/components/special/CraneLiftCard.tsx`
 
 ### Traffic Control
 - Traffic Control Plan (TCP) requirements
+- Flagger assignment tracking
+- Night operations lighting plan
+- **UI Component**: `client/src/components/special/TrafficControlCard.tsx`
 
-These fields are automatically suggested via the `/api/jsas/:id/suggest` endpoint and render as separate permit pages in the PDF output.
+These fields are:
+1. Automatically suggested via the `/api/jsas/:id/suggest` endpoint
+2. Rendered as form cards in the JSA Builder (when integrated)
+3. Validated via `validateSpecialFieldsMiddleware` in API routes
+4. Rendered as separate permit pages in PDF output (both React component and server-side HTML)
 
 ## Future Enhancements
 

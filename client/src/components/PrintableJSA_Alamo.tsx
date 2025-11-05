@@ -229,6 +229,9 @@ export default function PrintableJSA_Alamo({ doc }: Props) {
               {typeof d.special.hotWork.fireWatchMins === 'number' && (
                 <tr><td style={{ fontWeight: 'bold' }}>Fire Watch Duration (minutes)</td><td>{d.special.hotWork.fireWatchMins}</td></tr>
               )}
+              {d.special.hotWork.cleared35ft && (
+                <tr><td style={{ fontWeight: 'bold' }}>Combustibles Cleared (35 ft)</td><td>{d.special.hotWork.cleared35ft}</td></tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -241,6 +244,12 @@ export default function PrintableJSA_Alamo({ doc }: Props) {
           <table className="grid">
             <tbody>
               <tr><td style={{ width: '40%', fontWeight: 'bold' }}>LOTO Required</td><td>{d.special.loto.required ? "Yes" : "No"}</td></tr>
+              {d.special.loto.pointsVerified && (
+                <tr><td style={{ fontWeight: 'bold' }}>Isolation Points Verified</td><td>{d.special.loto.pointsVerified}</td></tr>
+              )}
+              {d.special.loto.zeroVerified && (
+                <tr><td style={{ fontWeight: 'bold' }}>Zero Energy Verified</td><td>{d.special.loto.zeroVerified}</td></tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -253,6 +262,12 @@ export default function PrintableJSA_Alamo({ doc }: Props) {
           <table className="grid">
             <tbody>
               <tr><td style={{ width: '40%', fontWeight: 'bold' }}>Lift Plan Required</td><td>{d.special.craneLift.planRequired ? "Yes" : "No"}</td></tr>
+              {d.special.craneLift.qualified && (
+                <tr><td style={{ fontWeight: 'bold' }}>Rigger/Signaler Qualified</td><td>{d.special.craneLift.qualified}</td></tr>
+              )}
+              {d.special.craneLift.powerClearance && (
+                <tr><td style={{ fontWeight: 'bold' }}>Power Line Clearance Verified</td><td>{d.special.craneLift.powerClearance}</td></tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -265,6 +280,12 @@ export default function PrintableJSA_Alamo({ doc }: Props) {
           <table className="grid">
             <tbody>
               <tr><td style={{ width: '40%', fontWeight: 'bold' }}>TCP Required</td><td>{d.special.trafficControl.tcpRequired ? "Yes" : "No"}</td></tr>
+              {d.special.trafficControl.flaggers && (
+                <tr><td style={{ fontWeight: 'bold' }}>Flaggers Assigned</td><td>{d.special.trafficControl.flaggers}</td></tr>
+              )}
+              {d.special.trafficControl.lightingPlan && (
+                <tr><td style={{ fontWeight: 'bold' }}>Night Ops Lighting Plan</td><td>{d.special.trafficControl.lightingPlan}</td></tr>
+              )}
             </tbody>
           </table>
         </div>

@@ -1,0 +1,51 @@
+{/* HOT WORK */}
+{doc.special?.hotWork && (
+  <section className="section">
+    <h2>Hot Work</h2>
+    <table className="grid"><tbody>
+      <tr><td>Permit Required</td><td>{doc.special.hotWork.permitRequired ? "Yes" : "No"}</td></tr>
+      {typeof doc.special.hotWork.fireWatchMins === "number" && (
+        <tr><td>Fire Watch (mins)</td><td>{doc.special.hotWork.fireWatchMins}</td></tr>
+      )}
+      {doc.special.hotWork.cleared35ft && (
+        <tr><td>Combustibles Cleared (35 ft)</td><td>{doc.special.hotWork.cleared35ft}</td></tr>
+      )}
+    </tbody></table>
+  </section>
+)}
+
+{/* LOTO */}
+{doc.special?.loto && (
+  <section className="section">
+    <h2>Lockout/Tagout</h2>
+    <table className="grid"><tbody>
+      <tr><td>Required</td><td>{doc.special.loto.required ? "Yes" : "No"}</td></tr>
+      {doc.special.loto.pointsVerified && <tr><td>Isolation Points Verified</td><td>{doc.special.loto.pointsVerified}</td></tr>}
+      {doc.special.loto.zeroVerified && <tr><td>Zero Energy Verified</td><td>{doc.special.loto.zeroVerified}</td></tr>}
+    </tbody></table>
+  </section>
+)}
+
+{/* CRANE / LIFT */}
+{doc.special?.craneLift && (
+  <section className="section">
+    <h2>Crane / Critical Lift</h2>
+    <table className="grid"><tbody>
+      <tr><td>Plan Required</td><td>{doc.special.craneLift.planRequired ? "Yes" : "No"}</td></tr>
+      {doc.special.craneLift.qualified && <tr><td>Rigger/Signaler Qualified</td><td>{doc.special.craneLift.qualified}</td></tr>}
+      {doc.special.craneLift.powerClearance && <tr><td>Power Line Clearance Verified</td><td>{doc.special.craneLift.powerClearance}</td></tr>}
+    </tbody></table>
+  </section>
+)}
+
+{/* TRAFFIC CONTROL */}
+{doc.special?.trafficControl && (
+  <section className="section">
+    <h2>Roadway Traffic Control</h2>
+    <table className="grid"><tbody>
+      <tr><td>TCP Required</td><td>{doc.special.trafficControl.tcpRequired ? "Yes" : "No"}</td></tr>
+      {doc.special.trafficControl.flaggers && <tr><td>Flaggers Assigned</td><td>{doc.special.trafficControl.flaggers}</td></tr>}
+      {doc.special.trafficControl.lightingPlan && <tr><td>Night Ops Lighting Plan</td><td>{doc.special.trafficControl.lightingPlan}</td></tr>}
+    </tbody></table>
+  </section>
+)}

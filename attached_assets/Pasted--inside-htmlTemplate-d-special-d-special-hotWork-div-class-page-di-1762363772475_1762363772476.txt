@@ -1,0 +1,41 @@
+// ...inside htmlTemplate(...)
++ (d.special && d.special.hotWork ? `
+  <div class="page">
+    <div class="brandheader">Environmental Health & Safety</div>
+    <h2>Hot Work</h2>
+    <table class="grid"><tbody>
+      <tr><td>Permit Required</td><td>${d.special.hotWork.permitRequired ? "Yes" : "No"}</td></tr>
+      ${typeof d.special.hotWork.fireWatchMins==="number" ? `<tr><td>Fire Watch (mins)</td><td>${d.special.hotWork.fireWatchMins}</td></tr>`:''}
+      ${d.special.hotWork.cleared35ft ? `<tr><td>Combustibles Cleared (35 ft)</td><td>${d.special.hotWork.cleared35ft}</td></tr>`:''}
+    </tbody></table>
+  </div>` : '')
++ (d.special && d.special.loto ? `
+  <div class="page">
+    <div class="brandheader">Environmental Health & Safety</div>
+    <h2>Lockout/Tagout</h2>
+    <table class="grid"><tbody>
+      <tr><td>Required</td><td>${d.special.loto.required ? "Yes" : "No"}</td></tr>
+      ${d.special.loto.pointsVerified ? `<tr><td>Isolation Points Verified</td><td>${d.special.loto.pointsVerified}</td></tr>`:''}
+      ${d.special.loto.zeroVerified ? `<tr><td>Zero Energy Verified</td><td>${d.special.loto.zeroVerified}</td></tr>`:''}
+    </tbody></table>
+  </div>` : '')
++ (d.special && d.special.craneLift ? `
+  <div class="page">
+    <div class="brandheader">Environmental Health & Safety</div>
+    <h2>Crane / Critical Lift</h2>
+    <table class="grid"><tbody>
+      <tr><td>Plan Required</td><td>${d.special.craneLift.planRequired ? "Yes" : "No"}</td></tr>
+      ${d.special.craneLift.qualified ? `<tr><td>Rigger/Signaler Qualified</td><td>${d.special.craneLift.qualified}</td></tr>`:''}
+      ${d.special.craneLift.powerClearance ? `<tr><td>Power Line Clearance Verified</td><td>${d.special.craneLift.powerClearance}</td></tr>`:''}
+    </tbody></table>
+  </div>` : '')
++ (d.special && d.special.trafficControl ? `
+  <div class="page">
+    <div class="brandheader">Environmental Health & Safety</div>
+    <h2>Roadway Traffic Control</h2>
+    <table class="grid"><tbody>
+      <tr><td>TCP Required</td><td>${d.special.trafficControl.tcpRequired ? "Yes" : "No"}</td></tr>
+      ${d.special.trafficControl.flaggers ? `<tr><td>Flaggers Assigned</td><td>${d.special.trafficControl.flaggers}</td></tr>`:''}
+      ${d.special.trafficControl.lightingPlan ? `<tr><td>Night Ops Lighting Plan</td><td>${d.special.trafficControl.lightingPlan}</td></tr>`:''}
+    </tbody></table>
+  </div>` : '')

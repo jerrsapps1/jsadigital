@@ -62,16 +62,23 @@ export interface JsaAlamoDoc {
     };
     hotWork?: { 
       permitRequired: boolean; 
-      fireWatchMins?: number; 
+      fireWatchMins?: number;
+      cleared35ft?: string;
     };
     loto?: { 
-      required: boolean; 
+      required: boolean;
+      pointsVerified?: string;
+      zeroVerified?: string;
     };
     craneLift?: { 
-      planRequired: boolean; 
+      planRequired: boolean;
+      qualified?: string;
+      powerClearance?: string;
     };
     trafficControl?: { 
-      tcpRequired: boolean; 
+      tcpRequired: boolean;
+      flaggers?: string;
+      lightingPlan?: string;
     };
   };
 }

@@ -68,6 +68,81 @@ const htmlTemplate = (data: JsaAlamoDoc, css: string) => `<!doctype html>
         '</tbody></table>'+
       '</div>' 
     : ''))+
+    (d.special && d.special.confinedSpace ? 
+      '<div class="page">'+
+        '<div class="brandheader">Environmental Health & Safety</div>'+
+        '<h2 style="margin-top:1rem;margin-bottom:0.5rem;font-size:14pt;font-weight:bold">CONFINED SPACE PERMIT</h2>'+
+        '<table class="grid"><tbody>'+
+          '<tr><td style="width:40%;font-weight:bold">Permit Required</td><td>'+(d.special.confinedSpace.requiresPermit?"Yes":"No")+'</td></tr>'+
+          (d.special.confinedSpace.permitNo ? '<tr><td style="font-weight:bold">Permit #</td><td>'+d.special.confinedSpace.permitNo+'</td></tr>':'')+
+          (d.special.confinedSpace.attendantName ? '<tr><td style="font-weight:bold">Attendant</td><td>'+d.special.confinedSpace.attendantName+'</td></tr>':'')+
+          '<tr><td style="font-weight:bold">Rescue Plan Verified</td><td>'+(d.special.confinedSpace.rescuePlanVerified?"Yes":"No")+'</td></tr>'+
+          '<tr><td style="font-weight:bold">Isolation Completed</td><td>'+(d.special.confinedSpace.isolationCompleted?"Yes":"No")+'</td></tr>'+
+          (d.special.confinedSpace.atmosphericMonitoring?.required ? 
+            '<tr><td colspan="2" style="font-weight:bold;padding-top:0.5rem">ATMOSPHERIC MONITORING</td></tr>'+
+            '<tr><td style="font-weight:bold">Gases Monitored</td><td>'+d.special.confinedSpace.atmosphericMonitoring.gases.join(', ')+'</td></tr>'+
+            (d.special.confinedSpace.atmosphericMonitoring.acceptableRanges ? 
+              '<tr><td style="font-weight:bold">Acceptable Ranges</td><td>'+
+                Object.entries(d.special.confinedSpace.atmosphericMonitoring.acceptableRanges).filter(([,v])=>v).map(([k,v])=>k+': '+v).join(' | ')+
+              '</td></tr>'
+            :'')+
+            (d.special.confinedSpace.atmosphericMonitoring.readings ? 
+              '<tr><td style="font-weight:bold">Readings</td><td>'+
+                Object.entries(d.special.confinedSpace.atmosphericMonitoring.readings).filter(([,v])=>v).map(([k,v])=>k+': '+v).join(' | ')+
+              '</td></tr>'
+            :'')+
+            '<tr><td style="font-weight:bold">Continuous Monitoring</td><td>'+(d.special.confinedSpace.atmosphericMonitoring.continuous?"Yes":"No")+'</td></tr>'+
+            (typeof d.special.confinedSpace.atmosphericMonitoring.ventilationCFM==='number' ? 
+              '<tr><td style="font-weight:bold">Ventilation (CFM)</td><td>'+d.special.confinedSpace.atmosphericMonitoring.ventilationCFM+'</td></tr>'
+            :'')
+          :'')+
+        '</tbody></table>'+
+      '</div>' 
+    : '')+
+    (d.special && d.special.hotWork ? 
+      '<div class="page">'+
+        '<div class="brandheader">Environmental Health & Safety</div>'+
+        '<h2 style="margin-top:1rem;margin-bottom:0.5rem;font-size:14pt;font-weight:bold">HOT WORK PERMIT</h2>'+
+        '<table class="grid"><tbody>'+
+          '<tr><td style="width:40%;font-weight:bold">Permit Required</td><td>'+(d.special.hotWork.permitRequired?"Yes":"No")+'</td></tr>'+
+          (typeof d.special.hotWork.fireWatchMins==='number' ? '<tr><td style="font-weight:bold">Fire Watch (mins)</td><td>'+d.special.hotWork.fireWatchMins+'</td></tr>':'')+
+          (d.special.hotWork.cleared35ft ? '<tr><td style="font-weight:bold">Combustibles Cleared (35 ft)</td><td>'+d.special.hotWork.cleared35ft+'</td></tr>':'')+
+        '</tbody></table>'+
+      '</div>' 
+    : '')+
+    (d.special && d.special.loto ? 
+      '<div class="page">'+
+        '<div class="brandheader">Environmental Health & Safety</div>'+
+        '<h2 style="margin-top:1rem;margin-bottom:0.5rem;font-size:14pt;font-weight:bold">LOCKOUT/TAGOUT</h2>'+
+        '<table class="grid"><tbody>'+
+          '<tr><td style="width:40%;font-weight:bold">Required</td><td>'+(d.special.loto.required?"Yes":"No")+'</td></tr>'+
+          (d.special.loto.pointsVerified ? '<tr><td style="font-weight:bold">Isolation Points Verified</td><td>'+d.special.loto.pointsVerified+'</td></tr>':'')+
+          (d.special.loto.zeroVerified ? '<tr><td style="font-weight:bold">Zero Energy Verified</td><td>'+d.special.loto.zeroVerified+'</td></tr>':'')+
+        '</tbody></table>'+
+      '</div>' 
+    : '')+
+    (d.special && d.special.craneLift ? 
+      '<div class="page">'+
+        '<div class="brandheader">Environmental Health & Safety</div>'+
+        '<h2 style="margin-top:1rem;margin-bottom:0.5rem;font-size:14pt;font-weight:bold">CRANE / CRITICAL LIFT</h2>'+
+        '<table class="grid"><tbody>'+
+          '<tr><td style="width:40%;font-weight:bold">Plan Required</td><td>'+(d.special.craneLift.planRequired?"Yes":"No")+'</td></tr>'+
+          (d.special.craneLift.qualified ? '<tr><td style="font-weight:bold">Rigger/Signaler Qualified</td><td>'+d.special.craneLift.qualified+'</td></tr>':'')+
+          (d.special.craneLift.powerClearance ? '<tr><td style="font-weight:bold">Power Line Clearance Verified</td><td>'+d.special.craneLift.powerClearance+'</td></tr>':'')+
+        '</tbody></table>'+
+      '</div>' 
+    : '')+
+    (d.special && d.special.trafficControl ? 
+      '<div class="page">'+
+        '<div class="brandheader">Environmental Health & Safety</div>'+
+        '<h2 style="margin-top:1rem;margin-bottom:0.5rem;font-size:14pt;font-weight:bold">ROADWAY TRAFFIC CONTROL</h2>'+
+        '<table class="grid"><tbody>'+
+          '<tr><td style="width:40%;font-weight:bold">TCP Required</td><td>'+(d.special.trafficControl.tcpRequired?"Yes":"No")+'</td></tr>'+
+          (d.special.trafficControl.flaggers ? '<tr><td style="font-weight:bold">Flaggers Assigned</td><td>'+d.special.trafficControl.flaggers+'</td></tr>':'')+
+          (d.special.trafficControl.lightingPlan ? '<tr><td style="font-weight:bold">Night Ops Lighting Plan</td><td>'+d.special.trafficControl.lightingPlan+'</td></tr>':'')+
+        '</tbody></table>'+
+      '</div>' 
+    : '')+
     '<div class="page">'+
       '<div class="brandheader">Environmental Health & Safety</div>'+
       '<p class="attest">By signing this Job Hazard Analysis (JHA) I attest that I have read and understand my task, the hazards involved, and recommended safe job procedures and that I will comply with this JHA. That I have been read/translated this JHA in my native language and fully understand the JHA.</p>'+

@@ -66,7 +66,11 @@ suggestRouter.get('/jsas/:id/suggest', async (req, res) => {
 
   if (template.includes('hot work')) {
     ui.hotWorkPermit = true;
-    special.hotWork = { permitRequired: true, fireWatchMins: 60 };
+    special.hotWork = { 
+      permitRequired: true, 
+      fireWatchMins: 60,
+      cleared35ft: "Yes"
+    };
     base.hazards.push({ stepOrder: 1, type: "Fire/Explosion", details: "Combustibles within 35 ft" });
     base.controls.push({ hazardType: "Fire/Explosion", type: "Permit", details: "Hot Work permit, fire watch 60 min" });
     base.ppe.push("FR Clothing", "Face Shield/Welding Hood", "Hearing Protection");
@@ -74,7 +78,11 @@ suggestRouter.get('/jsas/:id/suggest', async (req, res) => {
 
   if (template.includes('electrical') || template.includes('loto')) {
     ui.loto = true;
-    special.loto = { required: true };
+    special.loto = { 
+      required: true,
+      pointsVerified: "No",
+      zeroVerified: "No"
+    };
     base.hazards.push({ stepOrder: 1, type: "Unexpected Energization", details: "Residual energy, incorrect isolation" });
     base.controls.push({ hazardType: "Unexpected Energization", type: "Procedure", details: "Apply LOTO, verify zero energy" });
     base.ppe.push("Arc-Rated PPE (as required)");
@@ -82,17 +90,29 @@ suggestRouter.get('/jsas/:id/suggest', async (req, res) => {
 
   if (template.includes('crane') || template.includes('rigging')) {
     ui.craneLiftPlan = true;
-    special.craneLift = { planRequired: true };
+    special.craneLift = { 
+      planRequired: true,
+      qualified: "Yes",
+      powerClearance: "Yes"
+    };
   }
 
   if (template.includes('traffic')) {
     ui.trafficControlPlan = true;
-    special.trafficControl = { tcpRequired: true };
+    special.trafficControl = { 
+      tcpRequired: true,
+      flaggers: "As Needed",
+      lightingPlan: "N/A"
+    };
   }
 
   if (template.includes('steel')) {
     ui.hotWorkPermit = true;
-    special.hotWork = { permitRequired: true, fireWatchMins: 60 };
+    special.hotWork = { 
+      permitRequired: true, 
+      fireWatchMins: 60,
+      cleared35ft: "Yes"
+    };
   }
 
   return res.json({ ...base, uiToggles: ui, special });
