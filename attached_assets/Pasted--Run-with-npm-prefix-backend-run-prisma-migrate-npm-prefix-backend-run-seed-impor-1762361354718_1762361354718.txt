@@ -1,0 +1,52 @@
+/* Run with:  npm --prefix ./backend run prisma:migrate && npm --prefix ./backend run seed */
+import fs from 'fs';
+import path from 'path';
+import { PrismaClient } from '@prisma/client';
+import { TEMPLATES_CONSTRUCTION } from './templates.construction';
+import { SAMPLE_JSA_CONCRETE } from './jsa.sample.concrete';
+
+const prisma = new PrismaClient();
+
+async function main() {
+  // 1) Org + users (minimal)
+  const org = await prisma.organization.upsert({
+    where: { slug: "acme" },
+    update: {},
+    create: { name: "Acme Construction", slug: "acme" }
+  });
+
+  // 2) Project
+  const project = await prisma.project.create({
+    data: { name: "Plaza Deck Expansion", location: "1200 Riverside Ave, Building B", orgId: org.id }
+  });
+
+  // 3) Templates (store as Template with text rows in your schema)
+  for (const t of TEMPLATES_CONSTRUCTION) {
+    const tmpl = await prisma.template.create({
+      data: { name: t.name, orgId: org.id, description: "Construction JSA template" }
+    });
+    // persist rows as steps/hazards/controls in your child tables if you have them,
+    // or store in JSON if you added a JSON column.
+    // Example: create as six combined rows into your own template child tables.
+    for (const r of t.rows) {
+      await prisma.templateStep.create({ data: { templateId: tmpl.id, order: r.order, text: r.step }});
+      await prisma.templateHazard.create({ data: { templateId: tmpl.id, type: "Template", description: r.hazards }});
+      await prisma.templateControl.create({ data: { templateId: tmpl.id, type: "Procedure", description: r.procedures }});
+    }
+  }
+
+  // 4) Save sample JSA JSON for the PDF route and UI preview
+  const outDir = path.join(process.cwd(), 'src', 'seeds', 'out');
+  fs.mkdirSync(outDir, { recursive: true });
+  fs.writeFileSync(path.join(outDir, 'jsa.sample.concrete.json'), JSON.stringify(SAMPLE_JSA_CONCRETE, null, 2));
+
+  console.log(`Seed complete. Org=${org.name}. Project="${project.name}". Templates=${TEMPLATES_CONSTRUCTION.length}.`);
+  console.log(`Sample JSA JSON written to seeds/out/jsa.sample.concrete.json`);
+}
+
+main().catch(e => {
+  console.error(e);
+  process.exit(1);
+}).finally(async () => {
+  await prisma.$disconnect();
+});

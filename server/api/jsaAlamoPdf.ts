@@ -44,16 +44,30 @@ const htmlTemplate = (data: JsaAlamoDoc, css: string) => `<!doctype html>
       '</tbody></table>'+
     '</div>' +
     (d.extraNotes&&d.extraNotes.length? '<div class="page"><div class="brandheader">Environmental Health & Safety</div><ul class="notes">'+d.extraNotes.map(n=>'<li>'+n+'</li>').join('')+'</ul></div>' :'') +
-    '<div class="page">'+
-      '<div class="brandheader">Environmental Health & Safety</div>'+
-      '<table class="grid"><thead><tr>'+
-        '<th>SEQUENCE OF BASIC JOB STEPS<div class="small">Beware of being too detailed, record only the information needed to describe each job action. Rule of thumb, no more than 10 steps/task being evaluated.</div></th>'+
-        '<th>POTENTIAL ACCIDENTS OR HAZARDS<div class="small">HAZARD CLASSIFICATION CATEGORIES: Stuck By/Against, Caught In/Between, Slip, Trip, or Fall, Overexertion, Ergonomic (Awkward Postures, Excessive Force, Vibration, Repetitive Motion)</div></th>'+
-        '<th>RECOMMENDED SAFE JOB PROCEDURE<div class="small">HAZARD CONTROL CATEGORIES: Engineer Out (New Way to Do, Change Physical Conditions or Work Procedures, Adjust/Modify/Replace Work Components/Tools, Decrease Performance Frequency), Personal Protective Equipment (PPE), Training, Improve Housekeeping.</div></th>'+
-      '</tr></thead><tbody>'+
-        Array.from({length:(d.continuationRows||10)}).map(()=>'<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>').join('')+
-      '</tbody></table>'+
-    '</div>'+
+    (d.steps.length > 6 ? 
+      '<div class="page">'+
+        '<div class="brandheader">Environmental Health & Safety</div>'+
+        '<table class="grid"><thead><tr>'+
+          '<th>SEQUENCE OF BASIC JOB STEPS<div class="small">Beware of being too detailed, record only the information needed to describe each job action. Rule of thumb, no more than 10 steps/task being evaluated.</div></th>'+
+          '<th>POTENTIAL ACCIDENTS OR HAZARDS<div class="small">HAZARD CLASSIFICATION CATEGORIES: Stuck By/Against, Caught In/Between, Slip, Trip, or Fall, Overexertion, Ergonomic (Awkward Postures, Excessive Force, Vibration, Repetitive Motion)</div></th>'+
+          '<th>RECOMMENDED SAFE JOB PROCEDURE<div class="small">HAZARD CONTROL CATEGORIES: Engineer Out (New Way to Do, Change Physical Conditions or Work Procedures, Adjust/Modify/Replace Work Components/Tools, Decrease Performance Frequency), Personal Protective Equipment (PPE), Training, Improve Housekeeping.</div></th>'+
+        '</tr></thead><tbody>'+
+          d.steps.slice(6).map(r=>'<tr><td>'+r.step+'</td><td>'+r.hazards+'</td><td>'+r.procedures+'</td></tr>').join('')+
+          (d.continuationRows && d.continuationRows > 0 ? Array.from({length:d.continuationRows}).map(()=>'<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>').join('') : '')+
+        '</tbody></table>'+
+      '</div>' 
+    : (d.steps.length <= 6 && d.continuationRows && d.continuationRows > 0 ?
+      '<div class="page">'+
+        '<div class="brandheader">Environmental Health & Safety</div>'+
+        '<table class="grid"><thead><tr>'+
+          '<th>SEQUENCE OF BASIC JOB STEPS<div class="small">Beware of being too detailed, record only the information needed to describe each job action. Rule of thumb, no more than 10 steps/task being evaluated.</div></th>'+
+          '<th>POTENTIAL ACCIDENTS OR HAZARDS<div class="small">HAZARD CLASSIFICATION CATEGORIES: Stuck By/Against, Caught In/Between, Slip, Trip, or Fall, Overexertion, Ergonomic (Awkward Postures, Excessive Force, Vibration, Repetitive Motion)</div></th>'+
+          '<th>RECOMMENDED SAFE JOB PROCEDURE<div class="small">HAZARD CONTROL CATEGORIES: Engineer Out (New Way to Do, Change Physical Conditions or Work Procedures, Adjust/Modify/Replace Work Components/Tools, Decrease Performance Frequency), Personal Protective Equipment (PPE), Training, Improve Housekeeping.</div></th>'+
+        '</tr></thead><tbody>'+
+          Array.from({length:d.continuationRows}).map(()=>'<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>').join('')+
+        '</tbody></table>'+
+      '</div>' 
+    : ''))+
     '<div class="page">'+
       '<div class="brandheader">Environmental Health & Safety</div>'+
       '<p class="attest">By signing this Job Hazard Analysis (JHA) I attest that I have read and understand my task, the hazards involved, and recommended safe job procedures and that I will comply with this JHA. That I have been read/translated this JHA in my native language and fully understand the JHA.</p>'+

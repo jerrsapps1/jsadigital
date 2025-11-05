@@ -116,29 +116,64 @@ export default function PrintableJSA_Alamo({ doc }: Props) {
         </div>
       )}
 
-      <div className="page">
-        <div className="brandheader">Environmental Health & Safety</div>
-        <table className="grid">
-          <thead>
-            <tr>
-              <th>SEQUENCE OF BASIC JOB STEPS
-                <Small>Beware of being too detailed, record only the information needed to describe each job action. Rule of thumb, no more than 10 steps/task being evaluated.</Small>
-              </th>
-              <th>POTENTIAL ACCIDENTS OR HAZARDS
-                <Small>HAZARD CLASSIFICATION CATEGORIES: Stuck By/Against, Caught In/Between, Slip, Trip, or Fall, Overexertion, Ergonomic (Awkward Postures, Excessive Force, Vibration, Repetitive Motion)</Small>
-              </th>
-              <th>RECOMMENDED SAFE JOB PROCEDURE
-                <Small>HAZARD CONTROL CATEGORIES: Engineer Out (New Way to Do, Change Physical Conditions or Work Procedures, Adjust/Modify/Replace Work Components/Tools, Decrease Performance Frequency), Personal Protective Equipment (PPE), Training, Improve Housekeeping.</Small>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {Array.from({ length: d.continuationRows ?? 10 }).map((_, i) => (
-              <tr key={i}><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {d.steps.length > 6 && (
+        <div className="page">
+          <div className="brandheader">Environmental Health & Safety</div>
+          <table className="grid">
+            <thead>
+              <tr>
+                <th>SEQUENCE OF BASIC JOB STEPS
+                  <Small>Beware of being too detailed, record only the information needed to describe each job action. Rule of thumb, no more than 10 steps/task being evaluated.</Small>
+                </th>
+                <th>POTENTIAL ACCIDENTS OR HAZARDS
+                  <Small>HAZARD CLASSIFICATION CATEGORIES: Stuck By/Against, Caught In/Between, Slip, Trip, or Fall, Overexertion, Ergonomic (Awkward Postures, Excessive Force, Vibration, Repetitive Motion)</Small>
+                </th>
+                <th>RECOMMENDED SAFE JOB PROCEDURE
+                  <Small>HAZARD CONTROL CATEGORIES: Engineer Out (New Way to Do, Change Physical Conditions or Work Procedures, Adjust/Modify/Replace Work Components/Tools, Decrease Performance Frequency), Personal Protective Equipment (PPE), Training, Improve Housekeeping.</Small>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {d.steps.slice(6).map((r) => (
+                <tr key={r.order}>
+                  <td>{r.step}</td>
+                  <td>{r.hazards}</td>
+                  <td>{r.procedures}</td>
+                </tr>
+              ))}
+              {d.continuationRows && d.continuationRows > 0 && Array.from({ length: d.continuationRows }).map((_, i) => (
+                <tr key={`blank-${i}`}><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {d.steps.length <= 6 && d.continuationRows && d.continuationRows > 0 && (
+        <div className="page">
+          <div className="brandheader">Environmental Health & Safety</div>
+          <table className="grid">
+            <thead>
+              <tr>
+                <th>SEQUENCE OF BASIC JOB STEPS
+                  <Small>Beware of being too detailed, record only the information needed to describe each job action. Rule of thumb, no more than 10 steps/task being evaluated.</Small>
+                </th>
+                <th>POTENTIAL ACCIDENTS OR HAZARDS
+                  <Small>HAZARD CLASSIFICATION CATEGORIES: Stuck By/Against, Caught In/Between, Slip, Trip, or Fall, Overexertion, Ergonomic (Awkward Postures, Excessive Force, Vibration, Repetitive Motion)</Small>
+                </th>
+                <th>RECOMMENDED SAFE JOB PROCEDURE
+                  <Small>HAZARD CONTROL CATEGORIES: Engineer Out (New Way to Do, Change Physical Conditions or Work Procedures, Adjust/Modify/Replace Work Components/Tools, Decrease Performance Frequency), Personal Protective Equipment (PPE), Training, Improve Housekeeping.</Small>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {Array.from({ length: d.continuationRows }).map((_, i) => (
+                <tr key={i}><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       <div className="page">
         <div className="brandheader">Environmental Health & Safety</div>
