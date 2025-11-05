@@ -249,6 +249,57 @@ These fields are:
 3. Validated via `validateSpecialFieldsMiddleware` in API routes
 4. Rendered as separate permit pages in PDF output (both React component and server-side HTML)
 
+## Voice Commands 🎤
+
+The application supports hands-free JSA creation via voice commands or typed commands.
+
+### Available On
+- **JSA Templates page** (`/templates`) - Voice-select templates
+- **JSA Builder page** (`/jsas/new`) - Voice-fill forms
+
+### Supported Commands
+
+**Templates Page:**
+```
+"task excavation" → Opens Excavation template
+"new task hot work" → Opens Hot Work template
+"task confined space" → Opens Confined Space template
+```
+
+**Builder Page:**
+```
+"project River Walk" → Sets project name
+"task concrete pour" → Sets task/title
+"add step pump setup" → Adds new job step
+"add step set up debris chute" → Adds another step
+"add hazard overhead power" → Adds hazard to last step
+"toggle hot work" → Enables Hot Work permit
+"toggle loto" → Enables LOTO requirements
+"toggle crane" → Enables Crane/Lift plan
+"toggle traffic control" → Enables Traffic Control plan
+"finish" → Jumps to Review step
+```
+
+**Combined Examples:**
+```
+"project Riverside Plaza; task selective demolition; add step set up debris chute; toggle hot work; finish"
+
+"same project as yesterday; new task concrete pour; location 1200 Riverside; add step pump setup; finish"
+
+"toggle loto; toggle traffic control off; finish"
+```
+
+### Implementation
+- **Voice capture**: Web Speech API (Chrome/Edge) with text input fallback
+- **Intent parser**: Regex-based NLU in `client/src/voice/intent.ts`
+- **Apply logic**: `client/src/voice/apply.ts` (template creation, intent application)
+- **UI Component**: `client/src/voice/VoiceButton.tsx`
+
+### Browser Support
+- ✅ Chrome/Edge: Full voice recognition
+- ⚠️ Firefox/Safari: Text command fallback available
+- 📱 Mobile: May require HTTPS for microphone access
+
 ## Future Enhancements
 
 - [ ] Database integration (replace in-memory storage)
@@ -305,7 +356,7 @@ The application uses a dark OSHA safety theme:
 7. Fixed pagination to render all job steps (not just first 6)
 8. Integrated print CSS into main stylesheet
 
-**Phase 2 - Expansion (Today):**
+**Phase 2 - Expansion:**
 1. ✅ Added 5 additional construction templates (Steel Erection, Confined Space Entry, Roadway Traffic Control, Drywall & Framing, MEP Rough-In)
 2. ✅ Implemented special fields system in JsaAlamoDoc type
 3. ✅ Created AI suggestion endpoint `/api/jsas/:id/suggest`
@@ -313,6 +364,14 @@ The application uses a dark OSHA safety theme:
 5. ✅ PrintableJSA_Alamo now renders special permit pages (Confined Space Permit, Hot Work Permit, LOTO, etc.)
 6. ✅ Created sample JSA with confined space monitoring data
 7. ✅ Total templates: 13 (up from 8)
+
+**Phase 3 - Voice Commands (Today):**
+1. ✅ Added voice command system using Web Speech API
+2. ✅ Created VoiceButton component with mic and text input modes
+3. ✅ Implemented intent parser for natural language commands
+4. ✅ Integrated voice commands into Templates page and Builder page
+5. ✅ Support for project, task, steps, hazards, and special field toggles
+6. ✅ Navigation merge: "JSA Templates" replaces separate JSA/Templates tabs
 
 ## Notes
 

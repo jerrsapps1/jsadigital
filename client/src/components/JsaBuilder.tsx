@@ -7,6 +7,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { GripVertical, Trash2, Plus, Save, Send } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import VoiceButton from "@/voice/VoiceButton";
+import { parseCommands } from "@/voice/intent";
+import { useToast } from "@/hooks/use-toast";
 
 interface JobStep {
   id: string;
@@ -30,6 +33,7 @@ interface JsaBuilderProps {
 }
 
 export default function JsaBuilder({ onSave, onSubmit }: JsaBuilderProps) {
+  const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(1);
   const [title, setTitle] = useState("");
   const [project, setProject] = useState("");
@@ -37,6 +41,47 @@ export default function JsaBuilder({ onSave, onSubmit }: JsaBuilderProps) {
   const [hazards, setHazards] = useState<Hazard[]>([{ id: "1", description: "", type: "" }]);
   const [controls, setControls] = useState<Control[]>([{ id: "1", description: "" }]);
   const [autoSaved, setAutoSaved] = useState(false);
+
+  const handleVoiceCommand = (text: string) => {
+    const intents = parseCommands(text);
+    const summary: string[] = [];
+
+    for (const intent of intents) {
+      switch (intent.kind) {
+        case "set_project":
+          setProject(intent.project);
+          summary.push(`✓ Project: ${intent.project}`);
+          break;
+        
+        case "set_task":
+          setTitle(intent.task);
+          summary.push(`✓ Task: ${intent.task}`);
+          break;
+        
+        case "add_step":
+          setJobSteps(prev => [...prev, { id: Date.now().toString(), description: intent.step }]);
+          summary.push(`✓ Added step: ${intent.step}`);
+          break;
+        
+        case "add_hazard":
+          setHazards(prev => [...prev, { id: Date.now().toString(), description: intent.hazard, type: "" }]);
+          summary.push(`✓ Added hazard: ${intent.hazard}`);
+          break;
+        
+        case "finish":
+          summary.push("✓ Ready to submit");
+          setCurrentStep(5); // Go to review step
+          break;
+      }
+    }
+
+    if (summary.length > 0) {
+      toast({
+        title: "Voice Command Processed",
+        description: summary.join("\n"),
+      });
+    }
+  };
 
   const steps = [
     { number: 1, label: "Details" },
@@ -116,33 +161,36 @@ export default function JsaBuilder({ onSave, onSubmit }: JsaBuilderProps) {
 
   return (
     <div className="max-w-3xl mx-auto space-y-8" data-testid="container-jsa-builder">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          {steps.map((step, index) => (
-            <div key={step.number} className="flex items-center">
-              <div 
-                className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${
-                  currentStep === step.number 
-                    ? 'bg-primary text-primary-foreground' 
-                    : currentStep > step.number
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted text-muted-foreground'
-                }`}
-                data-testid={`step-indicator-${step.number}`}
-              >
-                {currentStep > step.number ? '✓' : step.number}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {steps.map((step, index) => (
+              <div key={step.number} className="flex items-center">
+                <div 
+                  className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${
+                    currentStep === step.number 
+                      ? 'bg-primary text-primary-foreground' 
+                      : currentStep > step.number
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted text-muted-foreground'
+                  }`}
+                  data-testid={`step-indicator-${step.number}`}
+                >
+                  {currentStep > step.number ? '✓' : step.number}
+                </div>
+                {index < steps.length - 1 && (
+                  <div className={`w-12 h-0.5 ${currentStep > step.number ? 'bg-primary' : 'bg-muted'}`} />
+                )}
               </div>
-              {index < steps.length - 1 && (
-                <div className={`w-12 h-0.5 ${currentStep > step.number ? 'bg-primary' : 'bg-muted'}`} />
-              )}
-            </div>
-          ))}
+            ))}
+          </div>
+          {autoSaved && (
+            <Badge variant="outline" className="text-green-600 border-green-600">
+              ✓ Saved
+            </Badge>
+          )}
         </div>
-        {autoSaved && (
-          <Badge variant="outline" className="text-green-600 border-green-600">
-            ✓ Saved
-          </Badge>
-        )}
+        <VoiceButton onTranscript={handleVoiceCommand} />
       </div>
 
       <Card className="glass-card p-8">

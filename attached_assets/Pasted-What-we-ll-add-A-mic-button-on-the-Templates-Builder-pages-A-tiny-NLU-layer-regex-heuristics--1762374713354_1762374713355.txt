@@ -1,0 +1,228 @@
+What we’ll add
+
+A mic button on the Templates/Builder pages.
+
+A tiny NLU layer (regex + heuristics) that turns speech into actions:
+
+pick project / template
+
+“same as last” reuse
+
+add/edit steps, hazards, controls
+
+toggle special cards (Hot Work, LOTO, etc.)
+
+A confirm card (“Here’s what I’m about to create… Create / Edit first”).
+
+It writes a full JSA draft, then opens the print/sign flow.
+
+Drop-in pieces
+1) Voice capture (Web Speech API) + fallback text
+
+src/voice/VoiceButton.tsx
+
+import React, { useEffect, useRef, useState } from "react";
+
+export default function VoiceButton({ onTranscript }:{ onTranscript:(text:string)=>void }) {
+  const [recording, setRecording] = useState(false);
+  const recRef = useRef<SpeechRecognition|null>(null as any);
+
+  useEffect(() => {
+    const SR:any = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+    if (SR) {
+      recRef.current = new SR();
+      recRef.current.lang = "en-US";
+      recRef.current.interimResults = false;
+      recRef.current.maxAlternatives = 1;
+      recRef.current.onresult = (e:any) => {
+        const text = e.results[0][0].transcript;
+        onTranscript(text);
+      };
+      recRef.current.onend = () => setRecording(false);
+    }
+  }, [onTranscript]);
+
+  const toggle = () => {
+    if (!recRef.current) return alert("Speech recognition not supported in this browser. Use text input instead.");
+    if (recording) { recRef.current.stop(); setRecording(false); }
+    else { setRecording(true); recRef.current.start(); }
+  };
+
+  return (
+    <div className="no-print flex items-center gap-2">
+      <button onClick={toggle}>{recording ? "Stop" : "🎤 Speak"}</button>
+      <details>
+        <summary>Type command</summary>
+        <textarea rows={3} placeholder='e.g., "same project, same hazards, new task selective demo; add step set up debris chute; toggle hot work"'
+          onBlur={(e)=> e.currentTarget.value && onTranscript(e.currentTarget.value)} />
+      </details>
+    </div>
+  );
+}
+
+2) Lightweight intent parser
+
+src/voice/intent.ts
+
+export type Intent =
+  | { kind:"reuse_last"; project?:string; task?:string; hazardsSame?:boolean }
+  | { kind:"set_project"; project:string }
+  | { kind:"set_task"; task:string }
+  | { kind:"add_step"; step:string }
+  | { kind:"add_hazard"; hazard:string; controls?:string[] }
+  | { kind:"toggle_special"; key:"hotWork"|"loto"|"craneLift"|"trafficControl"|"confinedSpace"; on?:boolean }
+  | { kind:"set_location"; location:string }
+  | { kind:"set_date"; iso:string }
+  | { kind:"finish" };
+
+const yes = /(yes|on|enable|turn on|include)/i;
+const no  = /(no|off|disable|turn off|exclude)/i;
+
+export function parseCommands(input:string): Intent[] {
+  const t = input.toLowerCase();
+  const intents: Intent[] = [];
+  // reuse patterns
+  if (/same (project|job)/.test(t) || /same as last/.test(t) || /again today/.test(t)) {
+    intents.push({ kind:"reuse_last", hazardsSame:/same hazards?/.test(t) });
+  }
+  // project
+  const mProj = input.match(/project (?:named|called)?\s*([A-Za-z0-9\- _#]+)/i);
+  if (mProj) intents.push({ kind:"set_project", project:mProj[1].trim() });
+  // task
+  const mTask = input.match(/(?:task|work|doing)\s*[:\- ]\s*([A-Za-z0-9\- &,]+)/i) || input.match(/new task\s*([A-Za-z0-9\- &,]+)/i);
+  if (mTask) intents.push({ kind:"set_task", task:mTask[1].trim() });
+  // steps (allow multiple with ; or ,)
+  const stepMatches = input.match(/add step[s]?:?([\s\S]+)/i);
+  if (stepMatches) stepMatches[1].split(/[;,]/).forEach(s=>{
+    const step = s.trim(); if(step) intents.push({ kind:"add_step", step });
+  });
+  // hazards
+  const haz = input.match(/add hazard[s]?:?([\s\S]+)/i);
+  if (haz) haz[1].split(/[;,]/).forEach(h=> {
+    const txt = h.trim(); if (txt) intents.push({ kind:"add_hazard", hazard:txt });
+  });
+  // specials
+  if (/hot work/.test(t)) intents.push({ kind:"toggle_special", key:"hotWork", on: yes.test(t) ? true : no.test(t) ? false : true });
+  if (/(lockout|loto)/.test(t)) intents.push({ kind:"toggle_special", key:"loto", on: yes.test(t) ? true : no.test(t) ? false : true });
+  if (/(crane|lift plan)/.test(t)) intents.push({ kind:"toggle_special", key:"craneLift", on: yes.test(t) ? true : no.test(t) ? false : true });
+  if (/(traffic control|tcp)/.test(t)) intents.push({ kind:"toggle_special", key:"trafficControl", on: yes.test(t) ? true : no.test(t) ? false : true });
+  if (/confined space/.test(t)) intents.push({ kind:"toggle_special", key:"confinedSpace", on: yes.test(t) ? true : no.test(t) ? false : true });
+  // location/date (simple)
+  const mLoc = input.match(/location[: ]\s*([^,]+)(?:,|$)/i); if (mLoc) intents.push({ kind:"set_location", location:mLoc[1].trim() });
+  if (/today/.test(t)) intents.push({ kind:"set_date", iso: new Date().toISOString().slice(0,10) });
+  if (/finish|create|build it|make it/.test(t)) intents.push({ kind:"finish" });
+  return intents;
+}
+
+3) Apply intents to a draft
+
+src/voice/apply.ts
+
+import { JsaAlamoDoc } from "../types";
+import { useJsaStore } from "../store";
+import { TEMPLATES } from "../seeds/templates";
+import { UNIVERSAL_PPE_STANDARDS } from "../seeds/ppe";
+import { Intent } from "./intent";
+
+export function createFromTemplate(name:string): JsaAlamoDoc {
+  const t = TEMPLATES.find(x=>x.name.toLowerCase().includes(name.toLowerCase())) || TEMPLATES[0];
+  return {
+    id: `jsa-${Date.now()}`,
+    org: { name: "Acme Construction" },
+    meta: { dateISO: new Date().toISOString().slice(0,10), jobTask: t.name },
+    project: { name: "", jobNumber:"", location:"" },
+    ppeStandards: UNIVERSAL_PPE_STANDARDS,
+    steps: t.rows.map(r=>({ ...r })),
+    continuationRows: 8,
+    signatures: [],
+    special: {}
+  };
+}
+
+export function applyIntents(intents:Intent[], ctx:{
+  current?:JsaAlamoDoc|null, findLast:(opts:{project?:string, task?:string})=>JsaAlamoDoc|undefined
+}): { draft:JsaAlamoDoc, summary:string[] } {
+  let draft = ctx.current ?? createFromTemplate("General Housekeeping / Material Handling");
+  const notes:string[] = [];
+
+  for (const i of intents) {
+    if (i.kind==="reuse_last") {
+      const last = ctx.findLast({ project: i.project, task: i.task }) || ctx.findLast({}) ;
+      if (last) {
+        draft = { ...last, id: `jsa-${Date.now()}`, meta:{ ...last.meta, dateISO: new Date().toISOString().slice(0,10) } };
+        if (i.hazardsSame===false) { /* optional: clear hazards if you store separate list */ }
+        notes.push("Reused last JSA for this project/task");
+      }
+    }
+    if (i.kind==="set_project" && i.project) { draft.project.name = i.project; notes.push(`Project: ${i.project}`); }
+    if (i.kind==="set_task" && i.task) {
+      draft.meta.jobTask = i.task;
+      // if a known template matches new task, refresh steps
+      const t = TEMPLATES.find(x=>x.name.toLowerCase().includes(i.task.toLowerCase()));
+      if (t) { draft.steps = t.rows.map(r=>({ ...r })); notes.push(`Loaded template: ${t.name}`); }
+      else notes.push(`Task set: ${i.task}`);
+    }
+    if (i.kind==="add_step") { draft.steps.push({ order: draft.steps.length+1, step:i.step, hazards:"", procedures:"" }); notes.push(`Step + ${i.step}`); }
+    if (i.kind==="add_hazard") { 
+      // simplest: append text to the last row’s hazards
+      const idx = Math.max(0, draft.steps.length-1);
+      draft.steps[idx].hazards = [draft.steps[idx].hazards, i.hazard].filter(Boolean).join("; ");
+      notes.push(`Hazard + ${i.hazard}`);
+    }
+    if (i.kind==="toggle_special") {
+      draft.special = { ...(draft.special||{}), [i.key]: { ...(draft.special as any)?.[i.key], ...(i.on===undefined?{}:{ [i.key==="hotWork"?"permitRequired":"planRequired"] : i.on }) } } as any;
+      notes.push(`${i.on===false?"Disabled":"Enabled"} ${i.key}`);
+    }
+    if (i.kind==="set_location") { draft.project.location = i.location; notes.push(`Location: ${i.location}`); }
+    if (i.kind==="set_date") { draft.meta.dateISO = i.iso; notes.push(`Date: ${i.iso}`); }
+    if (i.kind==="finish") { notes.push("Ready to create"); }
+  }
+  return { draft, summary:notes };
+}
+
+4) Wire it into your Builder
+
+In your Builder page:
+
+import VoiceButton from "../voice/VoiceButton";
+import { parseCommands } from "../voice/intent";
+import { applyIntents } from "../voice/apply";
+import { useJsaStore } from "../store";
+
+function Builder() {
+  const { jsas, upsert } = useJsaStore();
+  const [draft, setDraft] = useState<JsaAlamoDoc|null>(null);
+  const findLast = ({project,task}:{project?:string,task?:string}) =>
+    [...jsas].reverse().find(d =>
+      (!project || d.project.name?.toLowerCase().includes(project.toLowerCase())) &&
+      (!task || d.meta.jobTask.toLowerCase().includes(task.toLowerCase()))
+    );
+
+  const handleTranscript = (text:string) => {
+    const intents = parseCommands(text);
+    const { draft:newDraft, summary } = applyIntents(intents, { current:draft, findLast });
+    setDraft(newDraft);
+    upsert(newDraft);
+    alert("Assistant:\n" + summary.join("\n"));
+  };
+
+  return (
+    <div>
+      <div className="no-print flex justify-between items-center">
+        <h3>Builder</h3>
+        <VoiceButton onTranscript={handleTranscript} />
+      </div>
+      {/* ... existing builder UI using `draft` ... */}
+    </div>
+  );
+}
+
+What you’ll be able to say
+
+“Same project as yesterday, same hazards, new task selective demolition. Add step set up debris chute; toggle hot work yes. Finish.”
+
+“Create for project River Walk; task concrete pour; location 1200 Riverside; add step pump setup; add hazard overhead power; finish.”
+
+“LOTO on; traffic control off; finish.”
+
+The assistant turns that into a ready-to-sign JSA using your existing layout. If it hears “government/USACE”, we flip the Gov Mode switch (different layout and fields) but keep the same 2-step flow.

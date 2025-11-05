@@ -3,12 +3,51 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { FileText, Plus } from "lucide-react";
 import { TEMPLATES_CONSTRUCTION } from "../../../shared/templates.construction";
+import VoiceButton from "@/voice/VoiceButton";
+import { parseCommands } from "@/voice/intent";
+import { useToast } from "@/hooks/use-toast";
 
 interface TemplatesPageProps {
   onCreateFromTemplate?: (templateName: string) => void;
 }
 
 export default function TemplatesPage({ onCreateFromTemplate }: TemplatesPageProps) {
+  const { toast } = useToast();
+
+  const handleVoiceCommand = (text: string) => {
+    const intents = parseCommands(text);
+    const summary: string[] = [];
+
+    // Look for task/template intent
+    const taskIntent = intents.find(i => i.kind === "set_task");
+    if (taskIntent && taskIntent.kind === "set_task") {
+      const templateName = taskIntent.task;
+      const matchedTemplate = TEMPLATES_CONSTRUCTION.find(t => 
+        t.name.toLowerCase().includes(templateName.toLowerCase())
+      );
+      
+      if (matchedTemplate) {
+        summary.push(`✓ Found template: ${matchedTemplate.name}`);
+        onCreateFromTemplate?.(matchedTemplate.name);
+      } else {
+        summary.push(`⚠ No template found for: ${templateName}`);
+      }
+    }
+
+    if (summary.length > 0) {
+      toast({
+        title: "Voice Command Processed",
+        description: summary.join("\n"),
+      });
+    } else {
+      toast({
+        title: "Voice Command",
+        description: `Try: "task excavation" or "new task hot work"`,
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -18,6 +57,7 @@ export default function TemplatesPage({ onCreateFromTemplate }: TemplatesPagePro
             Pre-configured safety analysis templates for common construction activities
           </p>
         </div>
+        <VoiceButton onTranscript={handleVoiceCommand} />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
