@@ -1,12 +1,12 @@
-import type { JsaAlamoDoc } from "../../../shared/jsaAlamoTypes";
-import { TEMPLATES_CONSTRUCTION } from "../../../shared/templates.construction";
-import { UNIVERSAL_PPE_STANDARDS } from "../../../shared/ppeStandards";
+import type { JsaAlamoDoc } from "@shared/types";
+import { TEMPLATES } from "@shared/seeds/templates";
+import { UNIVERSAL_PPE_STANDARDS } from "@shared/seeds/ppe";
 import type { Intent } from "./intent";
 
 export function createFromTemplate(name: string): JsaAlamoDoc {
-  const t = TEMPLATES_CONSTRUCTION.find(x => 
+  const t = TEMPLATES.find(x => 
     x.name.toLowerCase().includes(name.toLowerCase())
-  ) || TEMPLATES_CONSTRUCTION[0];
+  ) || TEMPLATES[0];
   
   return {
     id: `jsa-${Date.now()}`,
@@ -69,7 +69,7 @@ export function applyIntents(
       case "set_task": {
         draft.meta.jobTask = intent.task;
         // If a known template matches new task, refresh steps
-        const t = TEMPLATES_CONSTRUCTION.find(x => 
+        const t = TEMPLATES.find(x => 
           x.name.toLowerCase().includes(intent.task.toLowerCase())
         );
         if (t) {

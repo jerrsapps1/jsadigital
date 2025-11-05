@@ -1,5 +1,5 @@
-import { UNIVERSAL_PPE_STANDARDS } from "./ppeStandards";
-import type { JsaAlamoDoc } from "./jsaAlamoTypes";
+import { UNIVERSAL_PPE_STANDARDS } from "./seeds/ppe";
+import type { JsaAlamoDoc } from "./types";
 
 export const SAMPLE_JSA_CONCRETE: JsaAlamoDoc = {
   id: "seed-jsa-concrete-001",

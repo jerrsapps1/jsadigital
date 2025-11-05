@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Printer, FileDown } from "lucide-react";
 import PrintableJSA_Alamo from "./PrintableJSA_Alamo";
-import { SAMPLE_JSA_CONCRETE } from "../../../shared/jsa.sample.concrete";
+import { SAMPLE_JSA_CONCRETE } from "@shared/jsa.sample.concrete";
 
 export default function JsaViewPage() {
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);

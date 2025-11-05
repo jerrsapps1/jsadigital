@@ -1,4 +1,4 @@
-import type { JsaAlamoDoc } from '../../../shared/jsaAlamoTypes';
+import type { JsaAlamoDoc } from '@shared/types';
 
 type Props = { doc: JsaAlamoDoc };
 

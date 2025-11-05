@@ -1,0 +1,238 @@
+Absolutely—let’s bake in OSHA-friendly change flexibility so a JSA can be updated when conditions change, with clear traceability and re-signing where needed.
+
+Here’s a lean, side-by-side–compatible plan (fits your Option-1 repo).
+
+What we’ll add
+
+Revisioning: every update is a new revision with reason + timestamp.
+
+Change Log: who/what/why changed (quick notes).
+
+Re-Sign Rules: major changes force new signatures; minor changes don’t.
+
+“Field Change” mode: a one-click quick edit for jobsite changes.
+
+Start-of-Shift Check: prompts “Anything changed?” before work begins.
+
+Printable audit panel: revision history appears on the exported JSA.
+
+1) Types (shared) — add revision + change log
+
+/shared/types.ts
+
+export type ChangeCategory = 'SCOPE' | 'LOCATION' | 'EQUIPMENT' | 'ENVIRONMENT' | 'HAZARDS' | 'CONTROLS' | 'OTHER';
+export type ChangeImpact = 'MAJOR' | 'MINOR';
+
+export interface JsaChangeLog {
+  tsISO: string;                 // when
+  user?: string;                 // who (optional in lean mode)
+  category: ChangeCategory;      // what bucket changed
+  summary: string;               // short note
+  impact: ChangeImpact;          // MAJOR forces re-sign
+}
+
+export interface JsaRevisionMeta {
+  rev: number;                   // 1,2,3...
+  baseId: string;                // stable id for the JSA line
+  effectiveISO: string;          // when this rev became active
+  changeLog: JsaChangeLog[];     // cumulative log
+  requiresResign?: boolean;      // set true when MAJOR changes
+}
+
+export interface JsaAlamoDoc {
+  // ...existing fields...
+  revision?: JsaRevisionMeta;    // <— add this block
+}
+
+
+Policy we’ll apply (practical + OSHA-friendly):
+
+MAJOR = any change to: Steps, Hazards, Controls, Work Location, or adding Special sections (Hot Work/LOTO/Crane/Confined/Traffic).
+
+MINOR = spelling, contact names, job #, non-safety notes.
+
+When MAJOR, we set requiresResign: true and clear existing signatures (or mark them stale).
+
+2) Builder UX — buttons & quick flow
+
+Add three controls to your Builder header (lean SPA):
+
+Start-of-Shift Check (dialog with Yes/No):
+
+If “Yes, things changed”, show quick form: Category, Summary, Impact (MAJOR/MINOR) → apply + bump revision.
+
+Field Change (always visible):
+
+Opens the same quick form for ad-hoc changes during the shift.
+
+Clone as Revision:
+
+Creates a new rev from current doc (even if no changes yet).
+
+Suggested labels (small, top-right):
+[Start-of-Shift Check] [Field Change] [Clone as Revision]
+
+3) Minimal code (lean SPA)
+A) Revision helpers
+
+/spa-lean/src/utils/revisions.ts
+
+import { JsaAlamoDoc, JsaChangeLog, ChangeImpact } from "@shared/types";
+
+export function initRevision(doc: JsaAlamoDoc): JsaAlamoDoc {
+  if (doc.revision) return doc;
+  return {
+    ...doc,
+    revision: {
+      rev: 1,
+      baseId: doc.id,                       // first rev ties to original id
+      effectiveISO: new Date().toISOString(),
+      changeLog: [],
+      requiresResign: false
+    }
+  };
+}
+
+export function cloneAsRevision(doc: JsaAlamoDoc): JsaAlamoDoc {
+  const rev = (doc.revision?.rev ?? 1) + 1;
+  return {
+    ...doc,
+    id: `jsa-${Date.now()}`,               // new instance id
+    revision: {
+      rev,
+      baseId: doc.revision?.baseId || doc.id,
+      effectiveISO: new Date().toISOString(),
+      changeLog: [...(doc.revision?.changeLog || [])],
+      requiresResign: doc.revision?.requiresResign ?? false
+    },
+    // signatures must be re-collected if previous rev required resign
+    signatures: (doc.revision?.requiresResign ? [] : doc.signatures)
+  };
+}
+
+export function applyChange(
+  doc: JsaAlamoDoc,
+  change: Omit<JsaChangeLog, 'tsISO'>,
+  onMajor?: (d: JsaAlamoDoc) => JsaAlamoDoc
+): JsaAlamoDoc {
+  const withRev = initRevision(doc);
+  const entry = { ...change, tsISO: new Date().toISOString() };
+  const impact = change.impact;
+  let next = { 
+    ...withRev, 
+    revision: { 
+      ...withRev.revision!, 
+      changeLog: [...withRev.revision!.changeLog, entry],
+      requiresResign: withRev.revision!.requiresResign || (impact === 'MAJOR')
+    } 
+  };
+  if (impact === 'MAJOR' && onMajor) next = onMajor(next);
+  return next;
+}
+
+export function onMajorDefault(d: JsaAlamoDoc): JsaAlamoDoc {
+  // clear signatures on major changes to force fresh acknowledgment
+  return { ...d, signatures: [] };
+}
+
+B) Builder buttons (snippet)
+
+In BuilderPage.tsx header area:
+
+import { initRevision, cloneAsRevision, applyChange, onMajorDefault } from "../utils/revisions";
+
+<button onClick={()=>{
+  setDoc(d => initRevision(d));                // ensure rev block exists
+  const yes = confirm("Start-of-Shift Check: Did anything change?");
+  if (!yes) return;
+  // simple prompt flow (replace with a small modal in your UI)
+  const category = prompt("Category (SCOPE, LOCATION, EQUIPMENT, ENVIRONMENT, HAZARDS, CONTROLS, OTHER):", "HAZARDS") as any;
+  const summary  = prompt("Brief summary of the change:", "");
+  const impact   = (confirm("Is this a MAJOR change (requires re-sign)?") ? 'MAJOR' : 'MINOR') as ChangeImpact;
+  setDoc(d => applyChange(d, { category, summary: summary||"", impact }, onMajorDefault));
+}}>Start-of-Shift Check</button>
+
+<button onClick={()=>{
+  const category = prompt("Field Change Category:", "CONTROLS") as any;
+  const summary  = prompt("Brief summary of the change:", "");
+  const impact   = (confirm("MAJOR change (requires re-sign)?") ? 'MAJOR' : 'MINOR') as ChangeImpact;
+  setDoc(d => applyChange(d, { category, summary: summary||"", impact }, onMajorDefault));
+}}>Field Change</button>
+
+<button onClick={()=> setDoc(d => cloneAsRevision(d))}>Clone as Revision</button>
+
+
+You can replace prompt/confirm with a small modal later; this keeps it Replit-lean and functional.
+
+4) Re-sign logic (auto)
+
+When a MAJOR change is applied, we:
+
+append the log entry,
+
+set revision.requiresResign = true,
+
+clear signatures (so the signature grid is empty).
+
+On the signature panel, if requiresResign is true, show a tiny badge:
+“Re-sign required due to changes on {effectiveISO or last change ts}.”
+
+Signature panel note (one line):
+
+“This revision requires new signatures. Prior signatures were cleared due to major changes.”
+
+5) Print / PDF — show revision + changelog
+
+In /shared/components/PrintableJSA_Alamo.tsx add a panel (before the signature page or at the bottom of page 1 if short):
+
+{doc.revision && (
+  <section className="section">
+    <h2>Revision & Change Log</h2>
+    <table className="grid">
+      <tbody>
+        <tr><td>Base ID</td><td>{doc.revision.baseId}</td></tr>
+        <tr><td>Revision</td><td>{doc.revision.rev}</td></tr>
+        <tr><td>Effective</td><td>{new Date(doc.revision.effectiveISO).toLocaleString()}</td></tr>
+        <tr><td>Re-Sign Required</td><td>{doc.revision.requiresResign ? "Yes" : "No"}</td></tr>
+        {doc.revision.changeLog?.length ? (
+          <tr>
+            <td colSpan={2}>
+              <strong>Change Log</strong><br/>
+              {doc.revision.changeLog.map((c,i)=>(
+                <div key={i} style={{ marginTop:4 }}>
+                  [{new Date(c.tsISO).toLocaleString()}] {c.category} ({c.impact}): {c.summary} {c.user ? `— ${c.user}` : ''}
+                </div>
+              ))}
+            </td>
+          </tr>
+        ) : null}
+      </tbody>
+    </table>
+  </section>
+)}
+
+6) Practical defaults (so crews aren’t blocked)
+
+If a user changes Steps/Hazards/Controls/Location, automatically pop the Field Change modal (or show a “Don’t forget to log changes” toast) with Impact defaulted to MAJOR.
+
+For name/typo tweaks, default to MINOR.
+
+Always allow saving, but signatures won’t print unless re-collected when requiresResign=true.
+
+7) Works in both apps
+
+Lean SPA uses this out of the box (localStorage).
+
+Your full app can persist the same revision object to your DB later.
+
+Print layout already shares the same component in /shared.
+
+TL;DR
+
+You’ll be compliant and practical:
+
+Fast field edits with a small log,
+
+Major changes → fresh signatures,
+
+Audit trail printed on the JSA.

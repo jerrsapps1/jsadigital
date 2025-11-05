@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { FileText, Plus } from "lucide-react";
-import { TEMPLATES_CONSTRUCTION } from "../../../shared/templates.construction";
+import { TEMPLATES } from "@shared/seeds/templates";
 import VoiceButton from "@/voice/VoiceButton";
 import { parseCommands } from "@/voice/intent";
 import { useToast } from "@/hooks/use-toast";
@@ -22,7 +22,7 @@ export default function TemplatesPage({ onCreateFromTemplate }: TemplatesPagePro
     const taskIntent = intents.find(i => i.kind === "set_task");
     if (taskIntent && taskIntent.kind === "set_task") {
       const templateName = taskIntent.task;
-      const matchedTemplate = TEMPLATES_CONSTRUCTION.find(t => 
+      const matchedTemplate = TEMPLATES.find(t => 
         t.name.toLowerCase().includes(templateName.toLowerCase())
       );
       
@@ -61,7 +61,7 @@ export default function TemplatesPage({ onCreateFromTemplate }: TemplatesPagePro
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {TEMPLATES_CONSTRUCTION.map((template, index) => (
+        {TEMPLATES.map((template, index) => (
           <Card key={index} className="glass-card" data-testid={`card-template-${index}`}>
             <CardHeader>
               <div className="flex items-start justify-between gap-4">

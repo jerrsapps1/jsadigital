@@ -2,7 +2,7 @@ import express from 'express';
 import puppeteer from 'puppeteer';
 import path from 'path';
 import fs from 'fs';
-import type { JsaAlamoDoc } from '../../shared/jsaAlamoTypes';
+import type { JsaAlamoDoc } from '@shared/types';
 
 export const jsaAlamoPdf = express.Router();
 
