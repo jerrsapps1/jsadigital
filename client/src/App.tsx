@@ -12,6 +12,7 @@ import ArchivePage from "@/components/ArchivePage";
 import AnalyticsPage from "@/components/AnalyticsPage";
 import JsaBuilder from "@/components/JsaBuilder";
 import JsaViewPage from "@/components/JsaViewPage";
+import TemplatesPage from "@/components/TemplatesPage";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -42,6 +43,14 @@ function Router() {
       </Route>
       <Route path="/jsas/:id">
         <JsaViewPage />
+      </Route>
+      <Route path="/templates">
+        <TemplatesPage 
+          onCreateFromTemplate={(name) => {
+            console.log('Create JSA from template:', name);
+            setLocation("/jsas/new");
+          }}
+        />
       </Route>
       <Route path="/" component={() => <DashboardPage onCreateJSA={() => setLocation("/jsas/new")} onViewAll={() => setLocation("/archive")} />} />
       <Route component={NotFound} />
