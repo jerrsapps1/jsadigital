@@ -145,7 +145,7 @@ export default function JsaBuilder({ onSave, onSubmit }: JsaBuilderProps) {
         )}
       </div>
 
-      <Card className="p-8">
+      <Card className="glass-card p-8">
         <CardHeader className="px-0 pt-0">
           <CardTitle>{steps[currentStep - 1].label}</CardTitle>
         </CardHeader>
@@ -181,7 +181,7 @@ export default function JsaBuilder({ onSave, onSubmit }: JsaBuilderProps) {
           {currentStep === 2 && (
             <div className="space-y-4">
               {jobSteps.map((step, index) => (
-                <Card key={step.id} className="p-4" data-testid={`card-job-step-${index}`}>
+                <Card key={step.id} className="glass-card p-4" data-testid={`card-job-step-${index}`}>
                   <div className="flex gap-3">
                     <div className="flex items-center">
                       <GripVertical className="h-5 w-5 text-muted-foreground cursor-move" />
@@ -223,7 +223,7 @@ export default function JsaBuilder({ onSave, onSubmit }: JsaBuilderProps) {
           {currentStep === 3 && (
             <div className="space-y-4">
               {hazards.map((hazard, index) => (
-                <Card key={hazard.id} className="p-4" data-testid={`card-hazard-${index}`}>
+                <Card key={hazard.id} className="glass-card p-4" data-testid={`card-hazard-${index}`}>
                   <div className="space-y-3">
                     <div className="flex items-start gap-3">
                       <Badge variant="outline" className="h-6 mt-2">{index + 1}</Badge>
@@ -278,7 +278,7 @@ export default function JsaBuilder({ onSave, onSubmit }: JsaBuilderProps) {
           {currentStep === 4 && (
             <div className="space-y-4">
               {controls.map((control, index) => (
-                <Card key={control.id} className="p-4" data-testid={`card-control-${index}`}>
+                <Card key={control.id} className="glass-card p-4" data-testid={`card-control-${index}`}>
                   <div className="flex gap-3">
                     <Badge variant="outline" className="h-6">{index + 1}</Badge>
                     <Textarea

@@ -51,10 +51,10 @@ export default function DataTable({ data, onView, onDownloadPdf }: DataTableProp
   };
 
   return (
-    <div className="border rounded-lg overflow-hidden" data-testid="table-jsa-archive">
+    <div className="glass-card overflow-hidden" data-testid="table-jsa-archive">
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-muted/50 sticky top-0">
+          <thead className="bg-muted/30 sticky top-0">
             <tr>
               <th 
                 className="text-left px-4 py-3 text-sm font-medium cursor-pointer hover-elevate"

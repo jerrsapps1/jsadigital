@@ -14,7 +14,7 @@ interface KpiCardProps {
 
 export default function KpiCard({ title, value, icon: Icon, trend, className = "" }: KpiCardProps) {
   return (
-    <Card className={`p-6 ${className}`} data-testid={`card-kpi-${title.toLowerCase().replace(/\s+/g, '-')}`}>
+    <Card className={`glass-card p-6 ${className}`} data-testid={`card-kpi-${title.toLowerCase().replace(/\s+/g, '-')}`}>
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide" data-testid="text-kpi-title">
@@ -24,14 +24,14 @@ export default function KpiCard({ title, value, icon: Icon, trend, className = "
             {value}
           </p>
           {trend && (
-            <div className={`flex items-center gap-1 mt-2 text-sm ${trend.isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
+            <div className={`flex items-center gap-1 mt-2 text-sm ${trend.isPositive ? 'text-accent' : 'text-destructive'}`}>
               <span data-testid="text-kpi-trend">
                 {trend.isPositive ? '↑' : '↓'} {Math.abs(trend.value)}%
               </span>
             </div>
           )}
         </div>
-        <div className="text-primary/20">
+        <div className="text-primary/30">
           <Icon className="h-8 w-8" data-testid="icon-kpi" />
         </div>
       </div>

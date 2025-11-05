@@ -220,17 +220,30 @@
   body {
     @apply font-sans antialiased bg-background text-foreground;
     /* Radial gradient background for atmospheric depth */
-    background-image: radial-gradient(circle at 50% 0%, rgba(47, 129, 247, 0.05) 0%, transparent 50%);
+    background-image: 
+      radial-gradient(circle at 50% 0%, rgba(47, 129, 247, 0.08) 0%, transparent 40%),
+      radial-gradient(circle at 20% 80%, rgba(16, 185, 129, 0.04) 0%, transparent 40%),
+      radial-gradient(circle at 80% 60%, rgba(249, 115, 22, 0.03) 0%, transparent 40%);
     background-attachment: fixed;
   }
 
-  /* Glassmorphic card effect */
+  /* Glassmorphic card effect with blue glow */
   .glass-card {
-    background: rgba(22, 27, 34, 0.8);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 32px 0 rgba(88, 166, 255, 0.15);
+    background: rgba(22, 27, 34, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 
+      0 8px 32px 0 rgba(88, 166, 255, 0.15),
+      0 0 0 1px rgba(88, 166, 255, 0.05);
+  }
+
+  /* Enhanced hover state for glass cards */
+  .glass-card:hover {
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 
+      0 12px 48px 0 rgba(88, 166, 255, 0.2),
+      0 0 0 1px rgba(88, 166, 255, 0.08);
   }
 
   /* Apply dark mode by default */

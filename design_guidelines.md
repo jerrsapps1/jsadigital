@@ -1,196 +1,227 @@
-# JSA SaaS Design Guidelines
+# JSA Safety Platform - Design Guidelines
 
-## Design Approach
+## Design Philosophy
+The JSA Safety Platform features a GitHub-inspired dark theme with glassmorphic elements and blue glow effects, creating a sophisticated, modern, and trustworthy appearance perfect for professional safety management.
 
-**Selected Approach**: Design System - Material Design 3 with Linear-inspired refinements
+## Color System
 
-**Justification**: This enterprise SaaS tool prioritizes functionality, data clarity, and trust. Material Design 3 provides robust form components and data visualization patterns, while Linear's aesthetic brings modern polish to enterprise software. This combination ensures professional credibility essential for safety compliance tools.
+### Brand Colors (OSHA-Inspired)
+- **Primary Color**: #f97316 (OSHA Orange)
+  - Used for main action buttons (Create JSA, Save), OSHA badges, key highlights, primary CTAs
+  - Purpose: Draws attention to important actions and safety-specific elements
 
-**Core Principles**:
-- Clarity over decoration - information must be instantly scannable
-- Trustworthy professionalism - this handles safety compliance
-- Efficient workflows - minimize clicks for field crews
-- Mobile-first forms - crews work on tablets/phones in the field
+- **Secondary Color**: #2f81f7 (AI Blue)
+  - Used for links, secondary buttons, technical features
+  - Purpose: Distinguishes technical features and navigation elements
 
----
+- **Accent Color**: #10b981 (Emerald Green)
+  - Used for active navigation items, highlights, focus indicators, selected states
+  - Purpose: Shows what's currently active or selected
 
-## Typography System
+### Status Colors
+- **Success**: #22c55e (Green) - Completed tasks, success confirmations
+- **Warning**: #f59e0b (Amber) - Caution alerts, pending items
+- **Error**: #ef4444 (Red) - Error messages, critical alerts
 
-**Font Families**:
-- Primary: Inter (via Google Fonts) - body text, forms, data tables
-- Display: Inter (600-700 weight) - headings, page titles
-- Monospace: JetBrains Mono - timestamps, IDs, technical data
+### Core UI Colors (GitHub-Inspired Dark Theme)
+- **Main Background**: #0d1117 (Deep charcoal)
+- **Canvas/Surface**: #161b22 (Slightly lighter charcoal)
+- **Text Primary**: #c9d1d9 (Light gray - high readability)
+- **Text Muted**: #8b949e (Medium gray - secondary information)
+- **Default Borders**: #30363d (Subtle gray)
 
-**Hierarchy**:
-- Page Titles: text-3xl font-semibold tracking-tight
-- Section Headers: text-xl font-semibold
-- Card Titles: text-lg font-medium
-- Body Text: text-base font-normal
-- Labels: text-sm font-medium uppercase tracking-wide text-muted-foreground
-- Helper Text: text-sm text-muted-foreground
-- Data Tables: text-sm for optimal density
+## Visual Effects
 
----
+### Glassmorphic Cards
+All cards feature:
+- Semi-transparent background: rgba(22, 27, 34, 0.85)
+- Backdrop filter: 16px blur for frosted glass effect
+- Border: Semi-transparent white (rgba(255, 255, 255, 0.08))
+- Blue glow shadow: rgba(88, 166, 255, 0.15) for ethereal depth
+- Enhanced hover state with increased glow
+- Applied via `.glass-card` class
 
-## Layout System
+### Radial Gradient Background
+Multi-layered atmospheric gradient:
+- Blue glow from top center (AI Blue)
+- Emerald accent from bottom left
+- Orange hint from right side
+- Creates sophisticated depth across the application
 
-**Spacing Primitives**: Use Tailwind units of 2, 4, 6, 8, 12, 16
-- Micro spacing (component internals): 2, 4
-- Standard spacing (between elements): 6, 8
-- Section spacing: 12, 16
+### Interactive States
+- **Hover**: Subtle elevation with brightness increase and enhanced blue glow
+- **Active**: Enhanced elevation for pressed feeling
+- **Focus**: Uses accent color (emerald) for accessibility
 
-**Container Strategy**:
-- Dashboard/App Shell: max-w-7xl mx-auto
-- Form Content: max-w-3xl
+## Typography
+
+### Font Families
+- **Sans-Serif (Body)**: Inter, -apple-system, BlinkMacSystemFont
+  - Clean, modern, highly readable
+  - Used for all standard UI text
+
+- **Monospace (Technical)**: JetBrains Mono
+  - Technical, precise appearance
+  - Used for dates, codes, technical data
+
+- **Serif (Optional)**: Georgia
+  - Traditional, formal feel
+  - Available for headings if needed
+
+### Text Hierarchy
+Three levels of text color:
+1. **Primary**: Full brightness (#c9d1d9) for main content
+2. **Muted**: Medium gray (#8b949e) for supporting details
+3. **Tertiary**: Most subtle for least important info
+
+## Layout & Spacing
+
+### Border Radius
+- **Standard**: 0.5rem (8px) for all elements
+- Philosophy: Small, subtle rounding for modern feel
+
+### Spacing Scale
+- **Base unit**: 0.25rem (4px)
+- Consistent spacing throughout for visual harmony
+
+### Container Strategy
+- Dashboard/App Shell: Full-width with 1.5rem padding
+- Form Content: max-w-3xl mx-auto
 - Full-width Data Tables: w-full with responsive scroll
-- Sidebar Navigation: fixed w-64 on desktop, slide-over on mobile
-
-**Grid Patterns**:
-- Dashboard KPI Cards: grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6
-- JSA Archive: Single column with full-width data table
-- Settings Panels: Two-column layout (navigation + content)
-
----
+- Sidebar Navigation: 16rem width on desktop
 
 ## Component Library
 
 ### Navigation & Layout
 
 **App Shell**:
-- Fixed sidebar navigation (desktop) with org logo, main nav, user dropdown
-- Top bar (mobile) with hamburger menu and context (current project/JSA title)
-- Breadcrumb trail on all pages below top bar
-- Persistent "Create JSA" floating action button (bottom-right on mobile)
+- Fixed sidebar navigation with org branding and main nav
+- Top header with sidebar toggle
+- Main content area with page-specific content
+- Dark mode by default (no toggle)
 
 **Sidebar Navigation**:
-- Org logo at top with brand color accent
-- Icon + label navigation items with active state indicator (left border + background tint)
+- Glassmorphic background matching theme
+- Icon + label navigation items with active state (emerald accent)
 - Role badge showing current user role
-- Org switcher dropdown at bottom
+- Compact, modern layout
 
 ### Forms & Data Entry
 
 **JSA Builder (Multi-Step Form)**:
-- Stepper indicator showing: 1. Details → 2. Steps → 3. Hazards → 4. Controls → 5. Review
-- Each step in full-height card with generous padding (p-8)
-- Progress auto-saved indicator (top-right, small text with checkmark icon)
-- Action buttons: "Save Draft" (secondary) + "Continue" (primary) anchored bottom-right
+- Stepper indicator showing: 1. Details → 2. Job Steps → 3. Hazards → 4. Controls → 5. Review
+- Each step in glassmorphic card with generous padding
+- Progress auto-saved indicator (top-right, emerald badge)
+- Action buttons: "Save Draft" + "Continue" or "Submit for Sign-off"
 
 **Job Step Entry**:
-- Repeatable card pattern with drag handles for reordering
-- Each step card contains: step number badge, description textarea, delete icon-button
-- "+ Add Step" button below cards (outlined style)
+- Repeatable glassmorphic card pattern with drag handles
+- Each step card: step number badge, description textarea, delete button
+- "+ Add Step" button below cards
 
 **Form Inputs**:
-- Floating labels for all text inputs
-- Helper text below inputs in muted color
-- Error states with red left border and error message
-- Select dropdowns with search for project selection
-- Date/time pickers with calendar icon
+- Dark-themed inputs with subtle borders
+- Labels with muted text color
+- Error states with red accent
+- Dropdowns with dark popover backgrounds
 
 ### Signature Capture
 
 **Signature Panel**:
-- Full-width white canvas with thin border
-- Controls below: "Clear" (text button) + "Confirm" (primary button)
-- After signing: show preview thumbnail + name label + timestamp + GPS coordinates (if captured)
-- Multiple signature slots in vertical stack: Supervisor → Worker 1 → Worker 2 (expandable)
+- White canvas with border for signature capture
+- Controls: "Clear" + "Confirm" buttons
+- Preview thumbnails after signing
+- Signature display with name, timestamp, GPS
 
 ### Data Display
 
 **Data Tables**:
-- Sticky header row with sort indicators
-- Row hover state with subtle background
-- Status badges (Draft: gray, Pending: yellow, Complete: green) with dot prefix
-- Action column (right-aligned) with icon buttons (view, download PDF, archive)
-- Pagination controls at bottom
-- Search/filter bar above table with date range picker
+- Glassmorphic container with blue glow
+- Semi-transparent header background
+- Sortable columns with hover states
+- Status badges (Draft: muted, Pending: warning, Complete: success)
+- Row hover elevation with blue glow
+- Action buttons (view, download PDF)
 
-**KPI Cards** (Dashboard):
-- White card with subtle shadow
+**KPI Cards**:
+- Glassmorphic cards with blue glow
 - Large metric number (text-4xl font-bold)
-- Label below in muted text
-- Small trend indicator (up/down arrow + percentage)
-- Optional icon in top-right corner with brand color tint
+- Label in muted text with uppercase tracking
+- Trend indicator (emerald for positive, red for negative)
+- Icon in top-right with primary color tint
 
 **Charts** (Analytics):
-- Bar chart for JSAs by project (horizontal bars with rounded corners)
-- Pie chart for top hazards (brand color palette)
-- Line chart for JSAs over time
-- All charts with legend below, axis labels, and tooltip on hover
+- Glassmorphic card containers
+- Bar charts with OSHA orange primary color
+- Pie charts with theme color palette
+- Dark-themed tooltips and legends
 
 ### Action Components
 
 **Buttons**:
-- Primary: filled with brand color (or blue-600 default), white text, rounded-lg
-- Secondary: outlined with border-2, rounded-lg
-- Destructive: red-600 fill for delete actions
-- Icon-only buttons: square aspect ratio, p-2, hover background
+- Primary: OSHA orange fill, white text, rounded-md
+- Secondary: AI blue fill, white text, rounded-md
+- Outline: Semi-transparent with border, hover elevation
+- Ghost: Transparent, subtle hover state
+- Icon-only: Square with hover elevation
 
-**Floating Action Button**:
-- Large circular button (w-14 h-14) with shadow-lg
-- Fixed position bottom-right (bottom-6 right-6)
-- Brand color background, white plus icon
-- Visible on archive and dashboard pages
+**Status Badges**:
+- Draft: Muted gray background
+- Pending Sign-off: Warning amber background
+- Complete: Success green background
+- Small, compact size with rounded corners
 
 ### Status & Feedback
 
-**Status Workflow Indicator**:
-- Horizontal stepper showing Draft → Pending Sign-off → Complete
-- Completed steps: brand color with checkmark
-- Current step: brand color outline
-- Future steps: gray outline
-
 **Toast Notifications**:
-- Top-right position, slide-in animation
+- Dark glassmorphic background
 - Success (green), Error (red), Info (blue) variants
-- Auto-dismiss after 5 seconds with progress bar
-
----
+- Auto-dismiss with smooth animations
 
 ## Page-Specific Layouts
 
+**Login**:
+- Centered glassmorphic card on gradient background
+- Large safety icon at top
+- Clean, minimal form layout
+
 **Dashboard**:
-- KPI cards in 4-column grid at top
-- Recent JSAs table below (max 5 rows with "View All" link)
-- Quick actions card on right sidebar (Create JSA, View Templates)
+- KPI cards in responsive grid (1/2/4 columns)
+- Recent JSAs table with glassmorphic container
+- Quick actions and system status cards
 
 **JSA Builder**:
-- Full-width centered form (max-w-3xl)
-- Sticky header with JSA title + auto-save status
-- Form sections in vertical flow with generous spacing (space-y-12)
+- Centered form (max-w-3xl)
+- Step indicator at top
+- Glassmorphic form sections
+- Navigation buttons at bottom
 
 **Archive**:
-- Search bar with filters (project dropdown, date range, status checkboxes) in collapsible panel
-- Full-width data table with horizontal scroll on mobile
-- Bulk actions toolbar appears when rows selected
+- Search bar with collapsible filters
+- Full-width data table
+- Glassmorphic filter panel
 
 **Analytics**:
-- Summary metrics in card grid at top
-- Charts in 2-column grid below
-- Export button (top-right) to download reports
+- Summary KPI cards at top
+- Charts in 2-column grid
+- All glassmorphic containers
 
-**Settings**:
-- Left sidebar with setting categories (General, Branding, Users, Billing)
-- Right content area (max-w-3xl) with forms for selected category
-- Branding section: logo upload with preview, brand color picker with live preview swatch
+## Design Principles
 
----
+1. **Contrast**: High contrast text on dark backgrounds for readability
+2. **Consistency**: Repeated glassmorphic pattern throughout
+3. **Depth**: Blue glow effects and shadows create visual layers
+4. **Focus**: OSHA orange draws eyes to key safety actions
+5. **Trust**: GitHub-inspired dark theme feels professional and modern
+6. **Accessibility**: Clear focus states and color contrast ratios
 
-## Images
+## Implementation Notes
 
-**Org Logo**: Used in sidebar navigation (max height h-8) and PDF exports. Admin uploads via Settings → Branding. Shows placeholder box with "Upload Logo" text when not set.
-
-**Signature Images**: Captured via signature pad canvas, displayed as thumbnail previews (h-16) in signature confirmation and PDF exports.
-
-**No Hero Images**: This is a functional SaaS application - no marketing hero sections. Login page features centered card with logo + form only.
-
----
-
-## Mobile Considerations
-
-- All data tables scroll horizontally with sticky first column
-- Sidebar collapses to hamburger menu
-- KPI cards stack to single column
-- Form inputs use native mobile controls (date pickers, select dropdowns)
-- Signature pad optimized for touch with larger tap targets
+- Dark mode is always active (no toggle needed)
+- All cards use the `.glass-card` class for consistent styling
+- Blue glow effects applied via custom shadow variables
+- Radial gradient is applied to body background
+- Use semantic color variables from Tailwind config (hsl(var(--primary)), etc.)
+- OSHA orange (#f97316) is the primary brand color for all CTAs
+- Emerald green (#10b981) indicates active/selected states
+- AI blue (#2f81f7) for secondary actions and links

@@ -91,7 +91,7 @@ export default function DashboardPage({ onCreateJSA, onViewAll }: DashboardPageP
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
+        <Card className="glass-card">
           <CardHeader>
             <CardTitle>Quick Actions</CardTitle>
           </CardHeader>
@@ -107,7 +107,7 @@ export default function DashboardPage({ onCreateJSA, onViewAll }: DashboardPageP
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="glass-card">
           <CardHeader>
             <CardTitle>System Status</CardTitle>
           </CardHeader>

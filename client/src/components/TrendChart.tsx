@@ -28,7 +28,7 @@ const COLORS = [
 
 export default function TrendChart({ type, title, data, className = "" }: TrendChartProps) {
   return (
-    <Card className={className} data-testid={`card-chart-${title.toLowerCase().replace(/\s+/g, '-')}`}>
+    <Card className={`glass-card ${className}`} data-testid={`card-chart-${title.toLowerCase().replace(/\s+/g, '-')}`}>
       <CardHeader>
         <CardTitle className="text-lg font-semibold">{title}</CardTitle>
       </CardHeader>
