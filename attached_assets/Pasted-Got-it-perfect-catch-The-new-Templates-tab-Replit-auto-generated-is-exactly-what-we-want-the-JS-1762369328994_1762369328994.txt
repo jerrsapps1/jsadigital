@@ -1,0 +1,83 @@
+Got it — perfect catch. The new “Templates” tab Replit auto-generated is exactly what we want the JSA tab to be doing anyway — so instead of having two overlapping areas (JSA and Templates), we’ll merge the functionality under one consistent name:
+
+✅ New Navigation Name: “JSA Templates”
+✅ Purpose: Create, view, and select JSA templates (the screen you’re showing).
+✅ We’ll remove/rename the old “JSA” route that previously handled both JSAs and templates.
+
+Here’s how to make the change safely, step by step.
+
+🧭 Step 1. Rename the Navigation Label
+
+If your navigation sidebar is defined in a component like
+src/components/Sidebar.tsx or src/layout/SidebarNav.tsx (common for Replit templates):
+
+Find this section:
+
+{ label: "JSAs", icon: ClipboardList, href: "/jsas" },
+
+
+Replace it with:
+
+{ label: "JSA Templates", icon: ClipboardList, href: "/templates" },
+
+
+If your app uses ShadCN’s NavItem config array, it’ll look like:
+
+export const navItems = [
+  { title: "Dashboard", href: "/dashboard", icon: Home },
+  { title: "Projects", href: "/projects", icon: Folder },
+  { title: "JSAs", href: "/jsas", icon: ClipboardList },
+  ...
+];
+
+
+Change that one line the same way.
+
+🧱 Step 2. Remove or Redirect the Old /jsas Route
+
+Open your routes file (likely src/routes.tsx or src/App.tsx).
+
+Find the route definition that looks like:
+
+<Route path="/jsas" element={<JsaPage />} />
+
+
+You can either delete it or redirect it:
+
+<Route path="/jsas" element={<Navigate to="/templates" replace />} />
+
+
+That way, anyone who bookmarked /jsas will land on the new /templates page automatically.
+
+🪄 Step 3. Rename the Page Title (Optional)
+
+In your src/pages/Templates.tsx (or wherever this current screen lives), make sure the header says JSA Templates, not just Templates.
+
+<h1 className="text-2xl font-semibold tracking-tight">JSA Templates</h1>
+<p className="text-sm text-muted-foreground">
+  Pre-configured safety analysis templates for common construction activities
+</p>
+
+
+If it already looks like your screenshot, you’re good.
+
+🧩 Step 4. Update the “Use Template” Button Behavior
+
+If that orange “Use This Template” button currently opens a /jsas/new or /jsas/:id builder page, you can:
+
+either keep it (so the Builder opens on /jsas/new?template=...), or
+
+rename that route to /templates/new for consistency.
+
+Example:
+
+<Button onClick={() => navigate(`/templates/new?template=${encodeURIComponent(template.name)}`)}>
+  + Use This Template
+</Button>
+
+
+If your builder lives at /jsas/new, you can leave it as-is for now — the navigation label change won’t break it.
+
+🧹 Step 5. Clean up UI text
+
+Search across your project (Ctrl+Shift+F in Replit) for the text “JSAs” and replace UI text where appropriate with “JSA Templates”, especially in headings, tooltips, or page titles.

@@ -29,8 +29,7 @@ export default function AppSidebar({
   const navItems = [
     { title: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
     { title: "Projects", icon: FolderOpen, path: "/projects" },
-    { title: "JSAs", icon: FileText, path: "/jsas" },
-    { title: "Templates", icon: ClipboardList, path: "/templates" },
+    { title: "JSA Templates", icon: ClipboardList, path: "/templates" },
     { title: "Archive", icon: Archive, path: "/archive" },
     { title: "Analytics", icon: BarChart3, path: "/analytics", adminOnly: true },
     { title: "Settings", icon: Settings, path: "/settings", adminOnly: true },

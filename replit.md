@@ -110,11 +110,14 @@ All JSAs include these standard PPE requirements:
 
 - `/` - Dashboard (redirects to `/dashboard`)
 - `/dashboard` - Main dashboard with KPIs and recent JSAs
-- `/jsas/new` - Create new JSA (5-step wizard)
-- `/jsas/:id` - View JSA with Print and PDF buttons
-- `/templates` - Templates library
+- `/templates` - **JSA Templates library** (primary entry point - 13 construction templates)
+- `/jsas/new` - JSA Builder (create new JSA from selected template)
+- `/jsas/:id` - View/edit individual JSA document with Print and PDF buttons
+- `/jsas` - Redirects to `/templates` (backwards compatibility)
 - `/archive` - JSA archive/history
 - `/analytics` - Safety analytics dashboard
+
+**Navigation Flow:** Users click "JSA Templates" in sidebar → browse template library → click "Use This Template" → redirected to `/jsas/new` to complete the JSA form.
 
 ## API Endpoints
 

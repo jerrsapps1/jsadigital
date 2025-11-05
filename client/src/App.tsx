@@ -26,6 +26,14 @@ function Router() {
           onViewAll={() => setLocation("/archive")}
         />
       </Route>
+      <Route path="/templates">
+        <TemplatesPage 
+          onCreateFromTemplate={(name) => {
+            console.log('Create JSA from template:', name);
+            setLocation("/jsas/new");
+          }}
+        />
+      </Route>
       <Route path="/archive">
         <ArchivePage />
       </Route>
@@ -44,13 +52,11 @@ function Router() {
       <Route path="/jsas/:id">
         <JsaViewPage />
       </Route>
-      <Route path="/templates">
-        <TemplatesPage 
-          onCreateFromTemplate={(name) => {
-            console.log('Create JSA from template:', name);
-            setLocation("/jsas/new");
-          }}
-        />
+      <Route path="/jsas">
+        {() => {
+          setLocation("/templates");
+          return null;
+        }}
       </Route>
       <Route path="/" component={() => <DashboardPage onCreateJSA={() => setLocation("/jsas/new")} onViewAll={() => setLocation("/archive")} />} />
       <Route component={NotFound} />
