@@ -1,0 +1,122 @@
+import type { JsaTemplateSeed } from "./templates.construction";
+
+export const TEMPLATES_CONSTRUCTION_EXTRA: JsaTemplateSeed[] = [
+  {
+    name: "Steel Erection",
+    rows: [
+      { order: 1, step: "Pre-task plan & crane coordination",
+        hazards: "Load drop; struck-by; overhead power",
+        procedures: "Lift plan; qualified rigger/signal; power line clearance; exclusion zones" },
+      { order: 2, step: "Column setting & plumbing up",
+        hazards: "Falls; pinch points; instability",
+        procedures: "100% fall protection ≥6 ft; spud wrench control; temporary bracing per plan" },
+      { order: 3, step: "Beam placement & connection",
+        hazards: "Falls from leading edge; dropped tools",
+        procedures: "Leading-edge fall protection; tool lanyards; secure decking before travel" },
+      { order: 4, step: "Decking & shear studs",
+        hazards: "Trip hazards; welding burns/fires",
+        procedures: "Stage materials safely; FR clothing; fire watch; hot work permit as required" },
+      { order: 5, step: "Bolting-up & torque",
+        hazards: "Pinch; ergonomic strain",
+        procedures: "Proper body positioning; calibrated torque tools; buddy system for long members" },
+      { order: 6, step: "Final alignment & inspection",
+        hazards: "Unstable members; unsecured areas",
+        procedures: "Engineer/competent person sign-off; remove temp bracing systematically; housekeeping" }
+    ],
+    notes: ["Follow steel erection standard; maintain controlled decking zones (CDZ) as applicable."]
+  },
+  {
+    name: "Confined Space Entry",
+    rows: [
+      { order: 1, step: "Identify space & classify",
+        hazards: "Oxygen deficiency; toxic/flammable atmospheres",
+        procedures: "Evaluate permit status; isolate energy; develop entry permit" },
+      { order: 2, step: "Atmospheric testing",
+        hazards: "Unseen gas/vapor; explosive mix",
+        procedures: "Calibrated multi-gas monitor; continuous monitoring; record readings" },
+      { order: 3, step: "Ventilation & controls",
+        hazards: "Accumulation of contaminants",
+        procedures: "Mechanical ventilation; purge before entry; maintain flow rate per volume" },
+      { order: 4, step: "Entry setup & communications",
+        hazards: "Entrapment; lack of rescue",
+        procedures: "Attendant in place; radio/visual signals; retrieval system ready" },
+      { order: 5, step: "Perform work",
+        hazards: "Heat stress; ergonomic strain; sparks",
+        procedures: "Work-rest cycles; hot work permit if needed; intrinsically safe tools" },
+      { order: 6, step: "Exit & permit closeout",
+        hazards: "Residual hazards post-work",
+        procedures: "Account for crew; remove locks/tags; document readings; close permit" }
+    ],
+    notes: ["Rescue plan and equipment must be established before entry; no entry without trained attendant."]
+  },
+  {
+    name: "Roadway Traffic Control",
+    rows: [
+      { order: 1, step: "Traffic control plan (TCP)",
+        hazards: "Vehicle strikes; confused motorists",
+        procedures: "Follow MUTCD/state spec; site-specific TCP; brief all workers" },
+      { order: 2, step: "Set advance warning area",
+        hazards: "Insufficient warning distance",
+        procedures: "Place signs per speed; verify visibility; flagger positions if used" },
+      { order: 3, step: "Tapers & channelizing devices",
+        hazards: "Sudden merges; device blow-overs",
+        procedures: "Install proper taper length; ballast per spec; inspect spacing" },
+      { order: 4, step: "Work area operations",
+        hazards: "Blind spots; backing equipment",
+        procedures: "Spotters; high-vis Class 2/3; backup alarms; maintain buffer space" },
+      { order: 5, step: "Night operations",
+        hazards: "Poor visibility; glare",
+        procedures: "Lighting plan; retroreflective gear; sign sheeting; glare control" },
+      { order: 6, step: "Tear-down & restore",
+        hazards: "Workers exposed during removal",
+        procedures: "Remove in reverse order; keep advance warning until last; inspect roadway" }
+    ],
+    notes: ["Adjust spacing for grades/curves; update TCP for staging changes."]
+  },
+  {
+    name: "Drywall & Framing",
+    rows: [
+      { order: 1, step: "Material delivery & staging",
+        hazards: "Strains; blocked egress",
+        procedures: "Team lift; carts/dollies; keep exits/aisles clear" },
+      { order: 2, step: "Metal stud layout & install",
+        hazards: "Cuts; pinch; noise",
+        procedures: "Gloves; hearing protection; secure top/bottom track; plumb/brace" },
+      { order: 3, step: "Overhead work",
+        hazards: "Falls; dropped tools",
+        procedures: "Use ladders/scaffolds properly; guardrails; tool lanyards" },
+      { order: 4, step: "Drywall hanging",
+        hazards: "Shoulder strain; dust",
+        procedures: "Panel lifts; two-person carry; respirators if required by dust level" },
+      { order: 5, step: "Taping/sanding",
+        hazards: "Dust inhalation; slips",
+        procedures: "Dust extraction; wet methods; housekeeping" },
+      { order: 6, step: "Cleanup & waste",
+        hazards: "Trips; sharp edges",
+        procedures: "Bag debris; blade control; final sweep" }
+    ]
+  },
+  {
+    name: "MEP Rough-In (Mechanical/Electrical/Plumbing)",
+    rows: [
+      { order: 1, step: "Layout & coordination",
+        hazards: "Clashes; rework; overhead hazards",
+        procedures: "Review drawings; coordinate trades; identify overhead conflicts" },
+      { order: 2, step: "Material handling & cutting",
+        hazards: "Cuts; flying particles; noise",
+        procedures: "Guarded tools; eye/hearing PPE; secure workpieces; sparks control" },
+      { order: 3, step: "Overhead installation (racks/ducts/conduit)",
+        hazards: "Falls; dropped items",
+        procedures: "Scaffold/lift training; fall protection per height; tool tethering" },
+      { order: 4, step: "Electrical terminations/pressure tests",
+        hazards: "Shock; pressure release",
+        procedures: "LOTO; GFCI; pressure testing barricades; venting plan" },
+      { order: 5, step: "Firestopping/penetrations",
+        hazards: "Fumes; heat; confined spaces (plenum)",
+        procedures: "SDS review; ventilation; hot work permit as needed; CO monitoring" },
+      { order: 6, step: "QA/QC & closeout",
+        hazards: "Unlabeled systems; leftover hazards",
+        procedures: "Labeling; cap open lines; remove debris; update as-builts" }
+    ]
+  }
+];
