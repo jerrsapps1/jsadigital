@@ -66,7 +66,7 @@ export default function SignaturePad({
 
   if (savedSignature) {
     return (
-      <Card className="p-4" data-testid="card-signature-preview">
+      <Card className="glass-card p-4" data-testid="card-signature-preview">
         <div className="space-y-3">
           <div className="flex items-start gap-4">
             <img 
@@ -97,7 +97,7 @@ export default function SignaturePad({
   }
 
   return (
-    <Card className="p-4" data-testid="card-signature-pad">
+    <Card className="glass-card p-4" data-testid="card-signature-pad">
       <div className="space-y-3">
         <canvas
           ref={canvasRef}
