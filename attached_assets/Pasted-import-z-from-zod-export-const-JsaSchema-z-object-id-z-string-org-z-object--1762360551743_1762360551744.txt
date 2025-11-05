@@ -1,0 +1,58 @@
+import { z } from 'zod';
+
+export const JsaSchema = z.object({
+  id: z.string(),
+  org: z.object({
+    name: z.string(),
+    logoUrl: z.string().optional(),
+    brandColor: z.string().optional(),
+    addressLine: z.string().optional()
+  }),
+  project: z.object({
+    name: z.string(),
+    location: z.string().optional(),
+    client: z.string().optional(),
+    number: z.string().optional()
+  }),
+  meta: z.object({
+    title: z.string(),
+    referenceNo: z.string().optional(),
+    revision: z.number().optional(),
+    preparedBy: z.string(),
+    preparedAt: z.string(),
+    workDate: z.string().optional(),
+    permitNos: z.array(z.string()).optional()
+  }),
+  crew: z.array(z.object({ name: z.string(), role: z.enum(['ADMIN','SUPERVISOR','WORKER','EHS','PM']) })),
+  jobSteps: z.array(z.object({ order: z.number(), text: z.string(), ownerRole: z.enum(['ADMIN','SUPERVISOR','WORKER','EHS','PM']).optional() })),
+  hazards: z.array(z.object({ stepOrder: z.number().optional(), type: z.string(), details: z.string().optional() })),
+  controls: z.array(z.object({ hazardType: z.string().optional(), type: z.string(), details: z.string() })),
+  ppe: z.array(z.string()),
+  equipment: z.array(z.string()).optional(),
+  emergencyInfo: z.object({
+    nearestHospital: z.string().optional(),
+    emergencyContacts: z.array(z.object({ label: z.string(), value: z.string() })).optional()
+  }).optional(),
+  signatures: z.array(z.object({
+    userId: z.string(),
+    name: z.string(),
+    roleAtSign: z.enum(['SUPERVISOR','WORKER','EHS','PM']),
+    signedAt: z.string(),
+    imageUrl: z.string(),
+    gpsLat: z.number().optional(),
+    gpsLng: z.number().optional(),
+    deviceId: z.string().optional()
+  })),
+  contributors: z.array(z.object({
+    userId: z.string(),
+    name: z.string(),
+    role: z.enum(['ADMIN','SUPERVISOR','WORKER','EHS','PM']),
+    section: z.enum(['STEPS','HAZARDS','CONTROLS','NOTES']),
+    contributedAt: z.string()
+  })),
+  status: z.enum(['DRAFT','PENDING_SIGNOFF','COMPLETE']),
+  pdfUrl: z.string().optional(),
+  qrHref: z.string().optional()
+});
+
+export type JsaDocument = z.infer<typeof JsaSchema>;

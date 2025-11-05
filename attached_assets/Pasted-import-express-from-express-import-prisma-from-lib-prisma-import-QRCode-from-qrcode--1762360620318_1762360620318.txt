@@ -1,0 +1,166 @@
+import express from 'express';
+import { prisma } from '../lib/prisma';
+import QRCode from 'qrcode';
+import puppeteer from 'puppeteer';
+import path from 'path';
+import fs from 'fs';
+
+export const pdfRouter = express.Router();
+
+// Helper: build HTML using a minimal HTML template that mounts PrintableJSA shape
+function renderHtml(doc: any, brandColor?: string) {
+  const safe = JSON.stringify(doc).replace(/</g, '\\u003c');
+  return `<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>${fs.readFileSync(path.join(__dirname, '../templates/print.css'), 'utf8')}</style>
+<title>JSA ${doc.meta?.title || ''}</title>
+</head>
+<body>
+<div id="app"></div>
+<script>
+  window.__JSA__ = ${safe};
+</script>
+<!-- Simple client-side renderer without React for PDF: -->
+<script>
+  const d = window.__JSA__;
+  // Very small renderer; for full fidelity, prerender via SSR or reuse React with hydrate.
+  document.getElementById('app').innerHTML = \`
+    <div class="print-wrapper">
+      <header class="print-header">
+        <div class="left">
+          \${d.org.logoUrl ? '<img class="logo" src="'+d.org.logoUrl+'" />' : ''}
+          <div>
+            <h1 class="title">Job Safety Analysis</h1>
+            <div class="sub">Organization: \${d.org.name}</div>
+            \${d.org.addressLine ? '<div class="sub">'+d.org.addressLine+'</div>' : ''}
+          </div>
+        </div>
+        <div class="right">
+          <table class="meta"><tbody>
+            <tr><td>Project</td><td>\${d.project.name||''}</td></tr>
+            \${d.project.location ? '<tr><td>Location</td><td>'+d.project.location+'</td></tr>' : ''}
+            \${d.project.number ? '<tr><td>Project #</td><td>'+d.project.number+'</td></tr>' : ''}
+            <tr><td>JSA Title</td><td>\${d.meta.title||''}</td></tr>
+            \${d.meta.referenceNo ? '<tr><td>Reference</td><td>'+d.meta.referenceNo+'</td></tr>' : ''}
+            \${Number.isFinite(d.meta.revision) ? '<tr><td>Revision</td><td>'+d.meta.revision+'</td></tr>' : ''}
+            <tr><td>Prepared By</td><td>\${d.meta.preparedBy||''}</td></tr>
+            <tr><td>Prepared At</td><td>\${new Date(d.meta.preparedAt).toLocaleString()}</td></tr>
+            \${d.meta.workDate ? '<tr><td>Work Date</td><td>'+d.meta.workDate+'</td></tr>' : ''}
+            \${(d.meta.permitNos||[]).length ? '<tr><td>Permits</td><td>'+d.meta.permitNos.join(', ')+'</td></tr>' : ''}
+          </tbody></table>
+        </div>
+      </header>
+
+      <section class="section">
+        <h2>Crew & Roles</h2>
+        <table class="grid"><thead><tr><th>Name</th><th>Role</th></tr></thead><tbody>
+          \${(d.crew||[]).map(c=>'<tr><td>'+c.name+'</td><td>'+c.role+'</td></tr>').join('')}
+        </tbody></table>
+      </section>
+
+      <section class="section">
+        <h2>Job Steps, Hazards & Controls</h2>
+        <table class="grid">
+          <thead><tr><th>#</th><th>Job Step</th><th>Hazards</th><th>Controls / PPE / Procedures</th><th>Owner</th></tr></thead>
+          <tbody>
+            \${(d.jobSteps||[]).sort((a,b)=>a.order-b.order).map(step=>{
+              const haz = (d.hazards||[]).filter(h=>h.stepOrder===step.order);
+              const ctr = (d.controls||[]).filter(c=>!c.hazardType || haz.some(h=>h.type===c.hazardType));
+              return '<tr class="row-top">'+
+                '<td>'+step.order+'</td>'+
+                '<td>'+step.text+'</td>'+
+                '<td>'+(haz.length?('<ul>'+haz.map(h=>'<li><strong>'+h.type+'</strong>'+(h.details?(' — '+h.details):'')+'</li>').join('')+'</ul>'):'<em>—</em>')+'</td>'+
+                '<td>'+(ctr.length?('<ul>'+ctr.map(c=>'<li><strong>'+c.type+':</strong> '+c.details+'</li>').join('')+'</ul>'):'<em>—</em>')+(d.ppe?.length?('<div class="muted">PPE: '+d.ppe.join(', ')+'</div>'):'')+'</td>'+
+                '<td>'+(step.ownerRole || '—')+'</td>'+
+              '</tr>';
+            }).join('')}
+          </tbody>
+        </table>
+      </section>
+
+      \${(d.equipment?.length || d.emergencyInfo) ? '<section class="section columns">'+
+        (d.equipment?.length ? ('<div class="col"><h2>Equipment</h2><ul class="list">'+d.equipment.map(e=>'<li>'+e+'</li>').join('')+'</ul></div>') : '<div></div>')+
+        (d.emergencyInfo ? ('<div class="col"><h2>Emergency Info</h2>'+
+            (d.emergencyInfo.nearestHospital?('<div><strong>Nearest Hospital:</strong> '+d.emergencyInfo.nearestHospital+'</div>'):'')+
+            ((d.emergencyInfo.emergencyContacts||[]).length?('<ul class="list">'+d.emergencyInfo.emergencyContacts.map(c=>'<li><strong>'+c.label+':</strong> '+c.value+'</li>').join('')+'</ul>'):'')+
+          '</div>'):'')+
+        '</section>' : ''}
+
+      <section class="section">
+        <h2>Signatures</h2>
+        <div class="signatures">
+          \${(d.signatures||[]).map(s=>'<div class="sig">'+
+            '<div class="sig-box">'+(s.imageUrl?('<img src="'+s.imageUrl+'" />'):'')+'</div>'+
+            '<div class="sig-meta"><div><strong>'+s.name+'</strong> — '+s.roleAtSign+'</div>'+
+            '<div>'+new Date(s.signedAt).toLocaleString()+'</div>'+
+            ((s.gpsLat&&s.gpsLng)?('<div>GPS: '+s.gpsLat.toFixed(5)+', '+s.gpsLng.toFixed(5)+'</div>'):'')+
+            (s.deviceId?('<div>Device: '+s.deviceId+'</div>'):'')+
+            '</div></div>').join('')}
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Contributors (Edit History)</h2>
+        <table class="grid"><thead><tr><th>Name</th><th>Role</th><th>Section</th><th>Time</th></tr></thead><tbody>
+          \${(d.contributors||[]).map(c=>'<tr><td>'+c.name+'</td><td>'+c.role+'</td><td>'+c.section+'</td><td>'+new Date(c.contributedAt).toLocaleString()+'</td></tr>').join('')}
+        </tbody></table>
+      </section>
+
+      <footer class="print-footer">
+        <div>Status: \${d.status}</div>
+        \${d.qrHref ? '<img class="qr" src="'+d.qrHref+'" />' : ''}
+        <div>Generated by JSA SaaS • '+new Date().toLocaleString()+'</div>
+      </footer>
+    </div>\`;
+</script>
+</body></html>`;
+}
+
+pdfRouter.post('/jsas/:id/pdf', async (req, res) => {
+  const { id } = req.params;
+  // Fetch JSA doc with all relationships (adapt to your DB schema)
+  const jsa = await prisma.jSA.findUnique({
+    where: { id },
+    include: {
+      project: true,
+      signatures: true,
+      // ... include crew, contributors, etc. depending on schema names
+    }
+  });
+  if (!jsa) return res.status(404).json({ error: 'JSA not found' });
+
+  // Build your JsaDocument shape from DB here (map fields 1:1 with JsaDocument)
+  const doc = /* transform to JsaDocument */ req.body?.mockDoc || {}; // replace with real transform
+
+  // Optional QR: link back to live JSA
+  const liveUrl = `${process.env.BASE_URL}/app/${req.user?.orgSlug}/jsas/${id}`;
+  const qrDataUrl = await QRCode.toDataURL(liveUrl);
+  doc.qrHref = qrDataUrl;
+
+  const html = renderHtml(doc);
+
+  // Launch puppeteer
+  const browser = await puppeteer.launch({
+    args: ['--no-sandbox','--disable-setuid-sandbox']
+  });
+  const page = await browser.newPage();
+  await page.setContent(html, { waitUntil: 'networkidle0' });
+  const pdf = await page.pdf({ printBackground: true, format: 'Letter', margin: { top: '12mm', right: '12mm', bottom: '12mm', left: '12mm' } });
+  await browser.close();
+
+  // Save to disk (optional) and return
+  const dir = path.join(process.env.FILE_STORAGE_PATH || './uploads', 'pdfs', id);
+  fs.mkdirSync(dir, { recursive: true });
+  const filePath = path.join(dir, `JSA-${id}.pdf`);
+  fs.writeFileSync(filePath, pdf);
+
+  // persist file path/url to DB if desired
+  // await prisma.jSA.update({ where:{ id }, data:{ pdfUrl: `/files/pdfs/${id}/JSA-${id}.pdf` } });
+
+  res.setHeader('Content-Type','application/pdf');
+  res.setHeader('Content-Disposition', `inline; filename="JSA-${id}.pdf"`);
+  res.send(pdf);
+});

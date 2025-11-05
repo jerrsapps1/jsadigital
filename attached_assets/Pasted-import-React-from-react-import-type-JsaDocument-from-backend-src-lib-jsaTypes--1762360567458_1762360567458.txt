@@ -1,0 +1,155 @@
+import React from 'react';
+import type { JsaDocument } from '../../../backend/src/lib/jsaTypes';
+
+type Props = { doc: JsaDocument };
+
+export default function PrintableJSA({ doc }: Props) {
+  return (
+    <div className="print-wrapper">
+      {/* Header */}
+      <header className="print-header">
+        <div className="left">
+          {doc.org.logoUrl && <img src={doc.org.logoUrl} alt="Logo" className="logo" />}
+          <div>
+            <h1 className="title">Job Safety Analysis</h1>
+            <div className="sub">Organization: {doc.org.name}</div>
+            {doc.org.addressLine && <div className="sub">{doc.org.addressLine}</div>}
+          </div>
+        </div>
+        <div className="right">
+          <table className="meta">
+            <tbody>
+              <tr><td>Project</td><td>{doc.project.name}</td></tr>
+              {doc.project.location && <tr><td>Location</td><td>{doc.project.location}</td></tr>}
+              {doc.project.number && <tr><td>Project #</td><td>{doc.project.number}</td></tr>}
+              <tr><td>JSA Title</td><td>{doc.meta.title}</td></tr>
+              {doc.meta.referenceNo && <tr><td>Reference</td><td>{doc.meta.referenceNo}</td></tr>}
+              {typeof doc.meta.revision === 'number' && <tr><td>Revision</td><td>{doc.meta.revision}</td></tr>}
+              <tr><td>Prepared By</td><td>{doc.meta.preparedBy}</td></tr>
+              <tr><td>Prepared At</td><td>{new Date(doc.meta.preparedAt).toLocaleString()}</td></tr>
+              {doc.meta.workDate && <tr><td>Work Date</td><td>{doc.meta.workDate}</td></tr>}
+              {doc.meta.permitNos?.length ? <tr><td>Permits</td><td>{doc.meta.permitNos.join(', ')}</td></tr> : null}
+            </tbody>
+          </table>
+        </div>
+      </header>
+
+      {/* Crew */}
+      <section className="section">
+        <h2>Crew & Roles</h2>
+        <table className="grid">
+          <thead><tr><th>Name</th><th>Role</th></tr></thead>
+          <tbody>
+            {doc.crew.map((c, idx) => (
+              <tr key={idx}><td>{c.name}</td><td>{c.role}</td></tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+
+      {/* Steps / Hazards / Controls */}
+      <section className="section">
+        <h2>Job Steps, Hazards & Controls</h2>
+        <table className="grid">
+          <thead>
+            <tr>
+              <th style={{width:'6%'}}>#</th>
+              <th>Job Step</th>
+              <th>Hazards</th>
+              <th>Controls / PPE / Procedures</th>
+              <th style={{width:'12%'}}>Owner</th>
+            </tr>
+          </thead>
+          <tbody>
+            {doc.jobSteps.sort((a,b)=>a.order-b.order).map(step => {
+              const hazards = doc.hazards.filter(h => h.stepOrder === step.order);
+              const controls = doc.controls.filter(c => !c.hazardType || hazards.some(h=>h.type===c.hazardType));
+              return (
+                <tr key={step.order} className="row-top">
+                  <td>{step.order}</td>
+                  <td>{step.text}</td>
+                  <td>
+                    {hazards.length ? (
+                      <ul>{hazards.map((h,i)=><li key={i}><strong>{h.type}</strong>{h.details ? ` — ${h.details}` : ''}</li>)}</ul>
+                    ) : <em>—</em>}
+                  </td>
+                  <td>
+                    {controls.length ? (
+                      <ul>{controls.map((c,i)=><li key={i}><strong>{c.type}:</strong> {c.details}</li>)}</ul>
+                    ) : <em>—</em>}
+                    {doc.ppe?.length ? <div className="muted">PPE: {doc.ppe.join(', ')}</div> : null}
+                  </td>
+                  <td>{step.ownerRole || '—'}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </section>
+
+      {/* Equipment / Emergency */}
+      {(doc.equipment?.length || doc.emergencyInfo) && (
+        <section className="section columns">
+          {doc.equipment?.length ? (
+            <div className="col">
+              <h2>Equipment</h2>
+              <ul className="list">{doc.equipment.map((e,i)=><li key={i}>{e}</li>)}</ul>
+            </div>
+          ) : <div/>}
+          {doc.emergencyInfo ? (
+            <div className="col">
+              <h2>Emergency Info</h2>
+              {doc.emergencyInfo.nearestHospital && <div><strong>Nearest Hospital:</strong> {doc.emergencyInfo.nearestHospital}</div>}
+              {doc.emergencyInfo.emergencyContacts?.length ? (
+                <ul className="list">{doc.emergencyInfo.emergencyContacts.map((c,i)=><li key={i}><strong>{c.label}:</strong> {c.value}</li>)}</ul>
+              ) : null}
+            </div>
+          ) : null}
+        </section>
+      )}
+
+      {/* Signatures */}
+      <section className="section">
+        <h2>Signatures</h2>
+        <div className="signatures">
+          {doc.signatures.map((s,i)=>(
+            <div className="sig" key={i}>
+              <div className="sig-box"><img src={s.imageUrl} alt={`${s.name} signature`} /></div>
+              <div className="sig-meta">
+                <div><strong>{s.name}</strong> — {s.roleAtSign}</div>
+                <div>{new Date(s.signedAt).toLocaleString()}</div>
+                {(s.gpsLat && s.gpsLng) ? <div>GPS: {s.gpsLat.toFixed(5)}, {s.gpsLng.toFixed(5)}</div> : null}
+                {s.deviceId ? <div>Device: {s.deviceId}</div> : null}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Contributors / Audit */}
+      {doc.contributors?.length ? (
+        <section className="section">
+          <h2>Contributors (Edit History)</h2>
+          <table className="grid">
+            <thead><tr><th>Name</th><th>Role</th><th>Section</th><th>Time</th></tr></thead>
+            <tbody>
+              {doc.contributors.map((c,i)=>(
+                <tr key={i}>
+                  <td>{c.name}</td><td>{c.role}</td><td>{c.section}</td>
+                  <td>{new Date(c.contributedAt).toLocaleString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+      ) : null}
+
+      {/* Footer */}
+      <footer className="print-footer">
+        <div>Status: {doc.status}</div>
+        {doc.qrHref && <img className="qr" src={doc.qrHref} alt="QR" />}
+        <div>Generated by JSA SaaS • {new Date().toLocaleString()}</div>
+      </footer>
+    </div>
+  );
+}
