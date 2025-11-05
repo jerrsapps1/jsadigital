@@ -1,0 +1,142 @@
+🔌 API Overview
+
+Base path: /api
+
+Auth – register / login / logout / current user
+
+Organizations – create org, invite users, update branding
+
+Projects – CRUD per org
+
+Templates – CRUD + versioning
+
+JSAs – create, edit, sign, PDF export, list / search
+
+Files – upload logo / signature images
+
+Analytics – summary counts + top hazards
+
+Use Zod for request validation and JWT middleware for auth.
+
+🖥 Frontend Routes
+
+/login, /register
+
+/app/:orgSlug/dashboard
+
+/app/:orgSlug/projects
+
+/app/:orgSlug/templates (list + edit)
+
+/app/:orgSlug/jsas/new (JSA builder)
+
+/app/:orgSlug/jsas/:id (detail + signatures + PDF)
+
+/app/:orgSlug/archive (search + export)
+
+/app/:orgSlug/analytics
+
+/app/:orgSlug/settings (org branding + users)
+
+🧩 Key Components
+
+<JsaBuilder /> (step entry, hazards, controls, autosave)
+
+<SignaturePad /> (using signature_pad)
+
+<GpsCapture /> (optional)
+
+<DataTable /> (for archive)
+
+<TrendChart /> (for analytics)
+
+<KpiCard /> (for dashboard metrics)
+
+🔐 Auth & Roles
+Action	Admin	Supervisor	Worker
+Manage Org & Users	✅	❌	❌
+Create/Edit Templates	✅	✅	❌
+Create/Edit JSAs	✅	✅	View
+Sign JSAs	✅	✅	✅
+View Analytics	✅	✅	❌
+
+Passwords → hashed with Argon2.
+JWT in httpOnly cookie.
+Role checks on every org-scoped endpoint.
+
+📑 PDF Export
+
+Use puppeteer to render an HTML template containing:
+
+Org logo + branding
+
+Project name + location
+
+Job steps, hazards, controls
+
+Signatures (images + names + timestamps + GPS)
+
+Store files in /uploads/pdfs/{orgId}/{jsaId}.pdf and save URL to DB.
+
+🧠 Analytics Endpoints
+
+GET /api/orgs/:orgId/analytics/overview →
+
+{
+  "totalJSAs": 42,
+  "byProject": [{ "project": "Site A", "count": 10 }],
+  "topHazards": ["Fall", "Electrical", "Slips"],
+  "signoffCompletionRate": 0.87
+}
+
+🚀 Seed Data (Development)
+
+Org: “Acme Construction”
+
+Users: admin@acme / supervisor@acme / worker@acme
+
+Project: “Downtown Demo”
+
+Template: “Trenching Safety”
+
+🧩 Scripts & Commands
+
+Root package.json:
+
+{
+  "scripts": {
+    "dev": "concurrently \"npm --prefix ./backend run dev\" \"npm --prefix ./frontend run dev\"",
+    "build": "npm --prefix ./frontend run build && npm --prefix ./backend run build",
+    "seed": "npm --prefix ./backend run seed"
+  }
+}
+
+
+Frontend: Vite dev server on 5173
+Backend: Express API on 4000
+
+⚙️ Environment Variables
+JWT_SECRET=change_me
+PORT=4000
+BASE_URL=http://localhost:4000
+FILE_STORAGE_PATH=./uploads
+
+✅ Acceptance Checklist
+
+Register / login works.
+
+Admin can create org + invite users.
+
+Supervisor can create JSA from template.
+
+Worker can sign off with signature pad.
+
+JSA PDF is generated and downloadable.
+
+Archive search + analytics function.
+
+UI mobile-friendly + offline draft autosave.
+
+Deliverable:
+A working Replit project running both frontend and backend via npm run dev.
+Show local URLs and demo credentials on startup.
