@@ -42,4 +42,36 @@ export interface JsaAlamoDoc {
     namePrinted: string; 
     signatureImageUrl?: string; 
   }>;
+
+  /** Task-specific switches & data captured by AI suggestions or template rules */
+  special?: {
+    confinedSpace?: {
+      requiresPermit: boolean;
+      permitNo?: string;
+      attendantName?: string;
+      rescuePlanVerified?: boolean;
+      atmosphericMonitoring?: {
+        required: boolean;
+        gases: Array<"O2" | "LEL" | "H2S" | "CO" | "Other">;
+        readings?: { O2?: string; LEL?: string; H2S?: string; CO?: string; Other?: string };
+        acceptableRanges?: { O2?: string; LEL?: string; H2S?: string; CO?: string; Other?: string };
+        continuous?: boolean;
+        ventilationCFM?: number;
+      };
+      isolationCompleted?: boolean;
+    };
+    hotWork?: { 
+      permitRequired: boolean; 
+      fireWatchMins?: number; 
+    };
+    loto?: { 
+      required: boolean; 
+    };
+    craneLift?: { 
+      planRequired: boolean; 
+    };
+    trafficControl?: { 
+      tcpRequired: boolean; 
+    };
+  };
 }

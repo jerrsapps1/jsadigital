@@ -1,0 +1,39 @@
+{uiToggles?.confinedSpace && (
+  <div className="card">
+    <h3>Confined Space Permit</h3>
+    <label>Permit Required: <input type="checkbox" checked={!!special?.confinedSpace?.requiresPermit} onChange={e=>setSpecial((s:any)=>({ ...s, confinedSpace: { ...s.confinedSpace, requiresPermit: e.target.checked } }))} /></label>
+    <div className="grid grid-cols-2 gap-3 mt-2">
+      <label>Permit #<input className="input" value={special?.confinedSpace?.permitNo||''} onChange={e=>setSpecial((s:any)=>({ ...s, confinedSpace: { ...s.confinedSpace, permitNo: e.target.value } }))} /></label>
+      <label>Attendant Name<input className="input" value={special?.confinedSpace?.attendantName||''} onChange={e=>setSpecial((s:any)=>({ ...s, confinedSpace: { ...s.confinedSpace, attendantName: e.target.value } }))} /></label>
+    </div>
+
+    {uiToggles?.atmosphericMonitoring && (
+      <>
+        <h4 className="mt-3">Atmospheric Monitoring</h4>
+        <div className="grid grid-cols-2 gap-3">
+          {["O2","LEL","H2S","CO"].map(key => (
+            <label key={key}>{key} Reading
+              <input className="input" placeholder={special?.confinedSpace?.atmosphericMonitoring?.acceptableRanges?.[key as "O2"] || '' }
+                value={special?.confinedSpace?.atmosphericMonitoring?.readings?.[key as "O2"] || ''}
+                onChange={e=>setSpecial((s:any)=>({
+                  ...s,
+                  confinedSpace: {
+                    ...s.confinedSpace,
+                    atmosphericMonitoring: {
+                      ...(s.confinedSpace?.atmosphericMonitoring||{}),
+                      readings: { ...(s.confinedSpace?.atmosphericMonitoring?.readings||{}), [key]: e.target.value }
+                    }
+                  }
+                }))} />
+            </label>
+          ))}
+        </div>
+        <label className="mt-2">Continuous Monitoring
+          <input type="checkbox"
+            checked={!!special?.confinedSpace?.atmosphericMonitoring?.continuous}
+            onChange={e=>setSpecial((s:any)=>({ ...s, confinedSpace: { ...s.confinedSpace, atmosphericMonitoring: { ...(s.confinedSpace?.atmosphericMonitoring||{}), continuous: e.target.checked }}}))} />
+        </label>
+      </>
+    )}
+  </div>
+)}

@@ -175,6 +175,101 @@ export default function PrintableJSA_Alamo({ doc }: Props) {
         </div>
       )}
 
+      {d.special?.confinedSpace && (
+        <div className="page">
+          <div className="brandheader">Environmental Health & Safety</div>
+          <h2 style={{ marginTop: '1rem', marginBottom: '0.5rem', fontSize: '14pt', fontWeight: 'bold' }}>CONFINED SPACE PERMIT</h2>
+          <table className="grid">
+            <tbody>
+              <tr><td style={{ width: '40%', fontWeight: 'bold' }}>Permit Required</td><td>{d.special.confinedSpace.requiresPermit ? "Yes" : "No"}</td></tr>
+              {d.special.confinedSpace.permitNo && <tr><td style={{ fontWeight: 'bold' }}>Permit #</td><td>{d.special.confinedSpace.permitNo}</td></tr>}
+              {d.special.confinedSpace.attendantName && <tr><td style={{ fontWeight: 'bold' }}>Attendant</td><td>{d.special.confinedSpace.attendantName}</td></tr>}
+              <tr><td style={{ fontWeight: 'bold' }}>Rescue Plan Verified</td><td>{d.special.confinedSpace.rescuePlanVerified ? "Yes" : "No"}</td></tr>
+              <tr><td style={{ fontWeight: 'bold' }}>Isolation Completed</td><td>{d.special.confinedSpace.isolationCompleted ? "Yes" : "No"}</td></tr>
+              {d.special.confinedSpace.atmosphericMonitoring?.required && (
+                <>
+                  <tr><td colSpan={2} style={{ fontWeight: 'bold', paddingTop: '0.5rem' }}>ATMOSPHERIC MONITORING</td></tr>
+                  <tr><td style={{ fontWeight: 'bold' }}>Gases Monitored</td><td>{d.special.confinedSpace.atmosphericMonitoring.gases.join(', ')}</td></tr>
+                  {d.special.confinedSpace.atmosphericMonitoring.acceptableRanges && (
+                    <tr><td style={{ fontWeight: 'bold' }}>Acceptable Ranges</td>
+                      <td>
+                        {Object.entries(d.special.confinedSpace.atmosphericMonitoring.acceptableRanges)
+                          .filter(([, v]) => v)
+                          .map(([k, v]) => `${k}: ${v}`).join(' | ')}
+                      </td>
+                    </tr>
+                  )}
+                  {d.special.confinedSpace.atmosphericMonitoring.readings && (
+                    <tr><td style={{ fontWeight: 'bold' }}>Readings</td>
+                      <td>
+                        {Object.entries(d.special.confinedSpace.atmosphericMonitoring.readings)
+                          .filter(([, v]) => v)
+                          .map(([k, v]) => `${k}: ${v}`).join(' | ')}
+                      </td>
+                    </tr>
+                  )}
+                  <tr><td style={{ fontWeight: 'bold' }}>Continuous Monitoring</td><td>{d.special.confinedSpace.atmosphericMonitoring.continuous ? "Yes" : "No"}</td></tr>
+                  {typeof d.special.confinedSpace.atmosphericMonitoring.ventilationCFM === 'number' && (
+                    <tr><td style={{ fontWeight: 'bold' }}>Ventilation (CFM)</td><td>{d.special.confinedSpace.atmosphericMonitoring.ventilationCFM}</td></tr>
+                  )}
+                </>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {d.special?.hotWork && (
+        <div className="page">
+          <div className="brandheader">Environmental Health & Safety</div>
+          <h2 style={{ marginTop: '1rem', marginBottom: '0.5rem', fontSize: '14pt', fontWeight: 'bold' }}>HOT WORK PERMIT</h2>
+          <table className="grid">
+            <tbody>
+              <tr><td style={{ width: '40%', fontWeight: 'bold' }}>Permit Required</td><td>{d.special.hotWork.permitRequired ? "Yes" : "No"}</td></tr>
+              {typeof d.special.hotWork.fireWatchMins === 'number' && (
+                <tr><td style={{ fontWeight: 'bold' }}>Fire Watch Duration (minutes)</td><td>{d.special.hotWork.fireWatchMins}</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {d.special?.loto && (
+        <div className="page">
+          <div className="brandheader">Environmental Health & Safety</div>
+          <h2 style={{ marginTop: '1rem', marginBottom: '0.5rem', fontSize: '14pt', fontWeight: 'bold' }}>LOCKOUT/TAGOUT (LOTO)</h2>
+          <table className="grid">
+            <tbody>
+              <tr><td style={{ width: '40%', fontWeight: 'bold' }}>LOTO Required</td><td>{d.special.loto.required ? "Yes" : "No"}</td></tr>
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {d.special?.craneLift && (
+        <div className="page">
+          <div className="brandheader">Environmental Health & Safety</div>
+          <h2 style={{ marginTop: '1rem', marginBottom: '0.5rem', fontSize: '14pt', fontWeight: 'bold' }}>CRANE/LIFT PLAN</h2>
+          <table className="grid">
+            <tbody>
+              <tr><td style={{ width: '40%', fontWeight: 'bold' }}>Lift Plan Required</td><td>{d.special.craneLift.planRequired ? "Yes" : "No"}</td></tr>
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {d.special?.trafficControl && (
+        <div className="page">
+          <div className="brandheader">Environmental Health & Safety</div>
+          <h2 style={{ marginTop: '1rem', marginBottom: '0.5rem', fontSize: '14pt', fontWeight: 'bold' }}>TRAFFIC CONTROL PLAN</h2>
+          <table className="grid">
+            <tbody>
+              <tr><td style={{ width: '40%', fontWeight: 'bold' }}>TCP Required</td><td>{d.special.trafficControl.tcpRequired ? "Yes" : "No"}</td></tr>
+            </tbody>
+          </table>
+        </div>
+      )}
+
       <div className="page">
         <div className="brandheader">Environmental Health & Safety</div>
         <p className="attest">
