@@ -26,15 +26,15 @@ export default function LoginForm({ onLogin, onRegister }: LoginFormProps) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-muted/30">
-      <Card className="w-full max-w-md" data-testid="card-login">
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <Card className="w-full max-w-md glass-card" data-testid="card-login">
         <CardHeader className="space-y-3 text-center">
-          <div className="mx-auto w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-            <div className="text-2xl font-bold text-primary">🦺</div>
+          <div className="mx-auto w-16 h-16 rounded-lg bg-primary/20 flex items-center justify-center border border-primary/30">
+            <div className="text-3xl">🦺</div>
           </div>
-          <CardTitle className="text-2xl">JSA SaaS</CardTitle>
-          <CardDescription>
-            Sign in to access your Job Safety Analysis platform
+          <CardTitle className="text-2xl font-bold">JSA Safety Platform</CardTitle>
+          <CardDescription className="text-muted-foreground">
+            Sign in to access your Job Safety Analysis system
           </CardDescription>
         </CardHeader>
         <CardContent>

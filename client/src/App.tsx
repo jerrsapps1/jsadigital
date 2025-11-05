@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -12,8 +12,6 @@ import ArchivePage from "@/components/ArchivePage";
 import AnalyticsPage from "@/components/AnalyticsPage";
 import JsaBuilder from "@/components/JsaBuilder";
 import NotFound from "@/pages/not-found";
-import { Button } from "@/components/ui/button";
-import { Moon, Sun } from "lucide-react";
 
 function Router() {
   const [, setLocation] = useLocation();
@@ -50,13 +48,11 @@ function Router() {
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [location, setLocation] = useLocation();
-  const [theme, setTheme] = useState<"light" | "dark">("light");
 
-  const toggleTheme = () => {
-    const newTheme = theme === "light" ? "dark" : "light";
-    setTheme(newTheme);
-    document.documentElement.classList.toggle("dark", newTheme === "dark");
-  };
+  // Apply dark mode by default for OSHA theme
+  useEffect(() => {
+    document.documentElement.classList.add("dark");
+  }, []);
 
   const handleLogin = (email: string, password: string) => {
     console.log('Login:', { email, password });
@@ -92,20 +88,8 @@ function App() {
               orgName="Acme Construction"
             />
             <div className="flex flex-col flex-1">
-              <header className="flex items-center justify-between px-6 py-4 border-b">
+              <header className="flex items-center px-6 py-4 border-b">
                 <SidebarTrigger data-testid="button-sidebar-toggle" />
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={toggleTheme}
-                  data-testid="button-theme-toggle"
-                >
-                  {theme === "light" ? (
-                    <Moon className="h-5 w-5" />
-                  ) : (
-                    <Sun className="h-5 w-5" />
-                  )}
-                </Button>
               </header>
               <main className="flex-1 overflow-auto p-6">
                 <Router />
