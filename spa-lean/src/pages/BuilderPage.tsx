@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import PrintableJSA_Alamo from "@shared/components/PrintableJSA_Alamo";
-import { JsaAlamoDoc } from "@shared/types";
+import type { JsaAlamoDoc } from "@shared/types";
 import { TEMPLATES } from "@shared/seeds/templates";
 import { UNIVERSAL_PPE_STANDARDS } from "@shared/seeds/ppe";
 import { downloadJson, uploadJson } from "../utils/local";
