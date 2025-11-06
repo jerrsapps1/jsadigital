@@ -12,6 +12,14 @@
     "jsx": "react-jsx",
     "verbatimModuleSyntax": false
   },
-  "include": ["src", "../shared/**/*.ts", "../shared/**/*.tsx"],
-  "exclude": ["../shared/schema.ts", "../server/**", "node_modules"]
+  "include": [
+    "src",
+    "../shared/**/*.ts"          // <— only .ts from shared
+  ],
+  "exclude": [
+    "../shared/**/*.tsx",        // <— exclude shared JSX
+    "../shared/schema.ts",       // backend-only
+    "../server/**",
+    "node_modules"
+  ]
 }
